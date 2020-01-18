@@ -9,7 +9,10 @@
     "typescript": "^3.7.5",
     "webpack": "^4.41.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-watch": "^5.0.1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/abrorAbdullaev/rla.git"
