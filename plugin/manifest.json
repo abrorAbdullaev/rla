@@ -2,6 +2,9 @@
   "name": "Relay Auto",
   "description": "Automation Of The Relay Platform Booking",
   "version": "2.0.0",
+  "permissions": [
+    "tabs"
+  ],
   "background": {
     "scripts": ["./assets/js/background.js"],
     "persistent": true

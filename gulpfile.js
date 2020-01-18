@@ -9,6 +9,8 @@ const build = (cb) => {
     console.log(stdOut);
     console.log(stdErr),
     cb(err);
+
+    console.log('build finished');
   });
 
   cb();

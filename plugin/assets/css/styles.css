@@ -1,0 +1,10 @@
+:root {
+  --gradLeft: #4CA1AF;
+  --gradRight: #C4E0E5;
+}
+
+body {
+  width: 750px;
+  min-height: 400px;
+  background-image: linear-gradient(to right, var(--gradLeft), var(--gradRight));
+}

@@ -4,6 +4,7 @@
   "description": "",
   "main": "-",
   "dependencies": {
+    "@types/chrome": "0.0.91",
     "reflect-metadata": "^0.1.13",
     "ts-loader": "^6.2.1",
     "tsyringe": "^4.0.1",
