@@ -3,11 +3,13 @@ import { container } from 'tsyringe';
 
 import { App } from './App/app';
 
-
 const appInstance = container.resolve(App);
 
-appInstance.init();
+document.addEventListener('DOMContentLoaded', () => {
+  appInstance.init();
 
-setInterval(() => {
-  appInstance.liveCheck();
-}, 5000);
+  setInterval(() => {
+    appInstance.liveCheck();
+  }, 5000);  
+});
+

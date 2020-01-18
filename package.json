@@ -5,6 +5,7 @@
   "main": "-",
   "dependencies": {
     "@types/chrome": "0.0.91",
+    "mustache": "^4.0.0",
     "reflect-metadata": "^0.1.13",
     "ts-loader": "^6.2.1",
     "tsyringe": "^4.0.1",
@@ -13,6 +14,7 @@
     "webpack-cli": "^3.3.10"
   },
   "devDependencies": {
+    "@types/mustache": "^4.0.0",
     "gulp": "^4.0.2",
     "gulp-watch": "^5.0.1"
   },
