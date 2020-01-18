@@ -1,0 +1,13 @@
+{
+  "name": "Relay Auto",
+  "description": "Automation Of The Relay Platform Booking",
+  "version": "2.0.0",
+  "background": {
+    "scripts": ["./assets/js/background.js"],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_popup": "./assets/html/popup.html"
+  },
+  "manifest_version": 2
+}
