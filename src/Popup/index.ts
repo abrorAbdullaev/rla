@@ -7,9 +7,5 @@ const appInstance = container.resolve(App);
 
 document.addEventListener('DOMContentLoaded', () => {
   appInstance.init();
-
-  setInterval(() => {
-    appInstance.liveCheck();
-  }, 5000);  
 });
 

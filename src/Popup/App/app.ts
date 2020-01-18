@@ -1,8 +1,15 @@
 import * as Mustache from 'mustache';
 import { injectable } from "tsyringe";
-import { Background } from "../Models";
-import { PopupService } from '../Services/PopupService';
 
+import { Background } from "./Models";
+import { PopupService } from './Services/PopupService';
+
+declare var require: {
+  (path: string): any;
+  <T>(path: string): T;
+  (paths: string[], callback: (...modules: any[]) => void): void;
+  ensure: (paths: string[], callback: (require: <T>(path: string) => T) => void) => void;
+};
 
 @injectable()
 export class App {
@@ -13,21 +20,19 @@ export class App {
   ) {}
 
   init(): void {
+    const mainHtml = require('./Template/main.html');
+    const wrongPageHtml = require('./Template/wrong.html');
+
+    let output: string;
+    
     this.isPageRelay().then((isRelay: boolean) => {
-      isRelay 
-        ? console.log('Relay')
-        : console.log('Not Relay');
-    });
+      output = isRelay
+        ? Mustache.render(mainHtml, {})
+        : Mustache.render(wrongPageHtml, {});
 
-    const output = Mustache.render(" Hello World ", {});
-
-    console.log(output);
-
-    this.popupService.renderContent(output);
-  }
-
-  liveCheck(): void {
-    console.log('Live Check: ');
+        this.popupService.hideLoader();
+        this.popupService.renderContent(output);
+      });
   }
 
   private isPageRelay(): Promise<boolean> {

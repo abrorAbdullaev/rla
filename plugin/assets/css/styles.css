@@ -5,6 +5,10 @@
 
 body {
   width: 750px;
-  min-height: 400px;
+  min-height: 200px;
   background-image: linear-gradient(to right, var(--gradLeft), var(--gradRight));
+}
+
+.text-primary {
+  color: #051C6F !important;
 }
