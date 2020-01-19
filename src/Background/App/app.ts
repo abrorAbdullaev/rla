@@ -1,19 +1,16 @@
 import { injectable } from 'tsyringe';
-import { TabsService } from './Services';
+import { TabsService } from '../../Shared/Services';
 import { TabInfo, TabStatus } from '../../Shared/Models/TabInfo';
-import { isTokenDescriptor } from 'tsyringe/dist/typings/providers/injection-token';
 
 @injectable()
 export class App {
   observedTabs: Array<TabInfo> = [];
 
   constructor(
-    private tabsService: TabsService,
+    public tabsService: TabsService,
   ) {}
 
   init(): void {
-    console.log(this.tabsService);
-
     this.tabsService.registerOnCloseEvents((tabId: number) => {
       this.removeObservedTab(tabId);
     });
@@ -30,7 +27,7 @@ export class App {
       searchStatus: false,
     } as TabInfo);
 
-    this.changeTabTitle(numericId);
+    this.tabsService.changeTabTitle(numericId);
   }
 
   removeObservedTab(id: number | string): void {
@@ -40,10 +37,7 @@ export class App {
 
     const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === numericId);
     this.observedTabs.splice(ind, 1);
-  }
 
-  private changeTabTitle(id: number):void {
-    console.log(this.tabsService);
-    // this.tabsService.changeTabTitle(id);
+    this.tabsService.changeTabTitle(numericId, true);
   }
 }
