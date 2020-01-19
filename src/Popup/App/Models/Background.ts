@@ -8,6 +8,7 @@ export interface Background {
   startTabSearching: Function;
   stopTabSearching: Function;
   startSearch: Function;
+  activateTab: Function;
   tabsService: TabsService;
   searchService: SearchService;
 }

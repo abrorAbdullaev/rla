@@ -82,6 +82,14 @@ export class PopupService {
           this.renderContent(currentTab, bg);
         }
       });
+
+      $('.tab-switch-btn').off().on('click', (event: Event) => {
+        if(event.target) {
+          console.log(bg);
+
+          bg.activateTab($(event.target).attr('data-tab-id'));
+        }
+      });
     }
   }
 

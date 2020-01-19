@@ -6,6 +6,7 @@
    *  id:           number,
    *  status:       "idle" | "searching"
    *  searchStatus: boolean
+   *  isFound:      boolean
    */
 -->
 <h1 class="h2 mt-4 text-center text-primary">
@@ -29,7 +30,9 @@
       <div class="col mb-2">
         <div class="border border-primary p-2">
           <h5>Tab Id: {{ id }}</h5>
-          <span>Status: {{ status }}</span>
+          <span>Status: {{ status }} 
+            {{ #isFound }}<span style="background-color: red; width: 15px; height: 15px; border-radius: 100%; display: inline-block;"></span>{{ /isFound }}
+          </span>
           <div class="actions row row-col-2 mt-2">
             <div class="w-100 text-center mb-2">Search</div>
             <div class="col">
@@ -47,6 +50,7 @@
           <button class="btn btn-primary w-100 tab-remove-btn" data-tab-id={{ id }}
             {{#searchStatus}}disabled="disabled" title="Please stop the search before remove"{{/searchStatus}}
           >Remove</button>
+          <button class="btn btn-primary w-100 tab-switch-btn mt-1" data-tab-id={{ id }}>Switch</button>
         </div>
       </div>    
     {{ /observedTabs }}

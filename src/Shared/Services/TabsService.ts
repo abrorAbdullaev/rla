@@ -24,4 +24,10 @@ export class TabsService {
     let newTitle = appendix ? id.toString() + ' ' + appendix : id.toString();
     chrome.tabs.executeScript(id, { code: 'document.title = " ' + newTitle + ' "' });
   }
+
+  switchToTab(id: number): void {
+    chrome.tabs.get(id, ((tab: chrome.tabs.Tab) => {
+      chrome.tabs.highlight({ tabs: [tab.index] });
+    }));
+  }
 }

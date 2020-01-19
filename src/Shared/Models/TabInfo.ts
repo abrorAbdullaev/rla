@@ -8,4 +8,5 @@ export interface TabInfo {
   id: number,
   status: TabStatus,
   searchStatus: boolean,
+  isFound: boolean,
 }

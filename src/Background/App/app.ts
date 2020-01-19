@@ -30,6 +30,7 @@ export class App {
       id: numericId,
       status: TabStatus.idle,
       searchStatus: false,
+      isFound: false,
     } as TabInfo);
 
     this.tabsService.changeTabTitle(numericId);
@@ -60,6 +61,7 @@ export class App {
  
     this.observedTabs[ind].status = TabStatus.searching;
     this.observedTabs[ind].searchStatus = true;
+    this.observedTabs[ind].isFound = false;
 
     this.tabsService.changeTabTitle(numericId, '(Searching)');
     
@@ -91,15 +93,24 @@ export class App {
 
             this.observedTabs[ind].status = TabStatus.found;
             this.observedTabs[ind].searchStatus = false;
+            this.observedTabs[ind].isFound = true;
 
             this.tabsService.changeTabTitle(resp.id, '( !Found! )');
           });
 
           onFound && onFound();
         }
-
+        
         this.startSearch(this.observedTabs.filter((obj: TabInfo) => obj.searchStatus,), onFound);
       });
     }
+  }
+
+  activateTab(id: number | string) {
+    const numericId = typeof id === 'string'
+    ? parseInt(id, 10)
+    : id;
+
+    this.tabsService.switchToTab(numericId);
   }
 }

@@ -29,6 +29,9 @@ export class BackgroundService {
         const startSearch = bg ? bg.app.startSearch : () => {
           console.log('bg update interval is not a function');
         }
+        const activateTab = bg ? bg.app.activateTab : () => {
+          console.log('bg activate tab is not a function');
+        }
         
         resolve({ 
           observedTabs, 
@@ -37,6 +40,7 @@ export class BackgroundService {
           startTabSearching,
           stopTabSearching,
           startSearch,
+          activateTab,
           tabsService,
           searchService,
         } as Background);
