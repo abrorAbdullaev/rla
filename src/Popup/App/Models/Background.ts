@@ -1,5 +1,5 @@
 import { TabInfo } from '../../../Shared';
-import { TabsService } from '../../../Shared/Services';
+import { TabsService, SearchService } from '../../../Shared/Services';
 
 export interface Background {
   observedTabs: TabInfo[];
@@ -7,5 +7,7 @@ export interface Background {
   removeObservedTab: Function;
   startTabSearching: Function;
   stopTabSearching: Function;
+  startSearch: Function;
   tabsService: TabsService;
+  searchService: SearchService;
 }

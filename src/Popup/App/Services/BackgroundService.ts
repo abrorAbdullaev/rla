@@ -12,7 +12,8 @@ export class BackgroundService {
     return new Promise<Background>((resolve) => {
       chrome.runtime.getBackgroundPage((bg) => {
         const observedTabs = bg ? bg.app.observedTabs : [];
-        const tabsService = bg ? bg.app.tabsService: {};
+        const tabsService = bg ? bg.app.tabsService : {};
+        const searchService = bg ? bg.app.searchService : {};
         const addObservedTab = bg ? bg.app.addObservedTab : () => {
           console.log('bg observed add function is not found');
         }
@@ -23,7 +24,10 @@ export class BackgroundService {
           console.log('bg start tab searching function is not found');
         }
         const stopTabSearching = bg ? bg.app.stopTabSearching : () => {
-          console.log('bg srop tab searching function is not found');
+          console.log('bg stop tab searching function is not found');
+        }
+        const startSearch = bg ? bg.app.startSearch : () => {
+          console.log('bg update interval is not a function');
         }
         
         resolve({ 
@@ -32,7 +36,9 @@ export class BackgroundService {
           removeObservedTab,
           startTabSearching,
           stopTabSearching,
+          startSearch,
           tabsService,
+          searchService,
         } as Background);
       });
     });
