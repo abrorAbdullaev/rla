@@ -1,31 +1,22 @@
 import * as Mustache from 'mustache';
 import { injectable } from "tsyringe";
-import $ from 'jquery';
 
 import { Background, MainTemplate } from "./Models";
 import { PopupService, BackgroundService } from './Services';
 
-declare var require: {
-  (path: string): any;
-  <T>(path: string): T;
-  (paths: string[], callback: (...modules: any[]) => void): void;
-  ensure: (paths: string[], callback: (require: <T>(path: string) => T) => void) => void;
-};
-
 @injectable()
 export class App {
-  private bg: Background | null = null;
-  private currentTab: chrome.tabs.Tab | null = null;
-  private mainHtml = require('./Template/main.html');
-  private wrongPageHtml = require('./Template/wrong.html');
+  private bg?: Background;
+  private currentTab?: chrome.tabs.Tab;
 
   constructor(
     private readonly popupService: PopupService,
     private readonly backgroundService: BackgroundService,
-  ) {}
+  ) {
+    this.popupService.parseTemplate();
+  }
 
   init(): void {
-    
     Promise.all([
       this.backgroundService.getBackground(), 
       this.backgroundService.getCurrentTab(),
@@ -35,23 +26,14 @@ export class App {
         this.popupService.hideLoader();
 
         if(!isRelay) {
-          this.popupService.renderContent(Mustache.render(this.wrongPageHtml, {}));
+          this.popupService.renderWrongPage();
           return;
         }
 
         this.bg = bg;
         this.currentTab = currentTab;
         
-        const mainTemplate = {
-          observedTabs: this.bg ? this.bg.observedTabs : [],
-        } as MainTemplate;
-
-        if(this.bg && !this.bg.observedTabs.filter(({ id }) => this.currentTab && id == this.currentTab.id).length) {
-          mainTemplate['currentNotObserved'] = true;
-          mainTemplate['currentTab'] = this.currentTab;
-        }
-
-        this.renderMainTemplate(mainTemplate);
+        this.popupService.renderContent(currentTab, bg);
     });
   }
 
@@ -63,20 +45,5 @@ export class App {
         resolve(Boolean(tab && tab.url && tab.url.includes('relay.amazon.com/tours/loadboard')));
       });
     });
-  }
-
-  private renderMainTemplate(mainTemplate: MainTemplate): void {
-    this.popupService.renderContent(Mustache.render(this.mainHtml, mainTemplate));
-
-    if (mainTemplate.currentNotObserved) {
-      $('#addCurrentButton').off().on('click', () => {
-        
-        if (this.bg && this.currentTab) {
-          this.bg?.addObservedTab(this.currentTab.id);
-
-          console.log(this.bg);
-        }
-      });
-    }
   }
 }

@@ -1,6 +1,9 @@
 :root {
   --gradLeft: #4CA1AF;
   --gradRight: #C4E0E5;
+
+  --primaryColor: #051C6F;
+  --secondaryColor: #5189c5;
 }
 
 body {
@@ -9,6 +12,21 @@ body {
   background-image: linear-gradient(to right, var(--gradLeft), var(--gradRight));
 }
 
+/** Bootstrap overrides */
 .text-primary {
-  color: #051C6F !important;
+  color: var(--primaryColor) !important;
+}
+
+.btn-primary {
+  background-color: var(--primaryColor);
+  border-color: var(--primaryColor);
+}
+
+.btn-primary:not([disabled]):hover {
+  background-color: var(--secondaryColor);
+  border-color: var(--secondaryColor);
+}
+
+.border-primary {
+  border-color: var(--primaryColor) !important;
 }

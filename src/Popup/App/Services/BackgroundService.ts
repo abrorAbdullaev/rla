@@ -15,10 +15,14 @@ export class BackgroundService {
         const addObservedTab = bg ? bg.app.addObservedTab : () => {
           console.log('bg observed add function is not found');
         }
+        const removeObservedTab = bg ? bg.app.removeObservedTab: () => {
+          console.log('bg observed remove function is not found');
+        }
 
         resolve({ 
           observedTabs: observedTabs, 
-          addObservedTab: addObservedTab 
+          addObservedTab: addObservedTab,
+          removeObservedTab: removeObservedTab,
         } as Background);
       });
     });

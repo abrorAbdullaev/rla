@@ -1,6 +1,7 @@
 import { TabInfo } from '../../../Shared';
 
 export interface Background {
-  observedTabs: Array<TabInfo>;
+  observedTabs: TabInfo[];
   addObservedTab: Function,
+  removeObservedTab: Function,
 }

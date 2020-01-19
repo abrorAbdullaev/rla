@@ -2,11 +2,13 @@ import { injectable } from "tsyringe";
 
 @injectable()
 export class TabsService {
-  getAllTabs(): Promise<chrome.tabs.Tab[]> {
-    return new Promise((resolve) => {
-      chrome.tabs.query({}, (tabs) => {
-        resolve(tabs);
-      });  
+  registerOnCloseEvents(fn: Function): void {
+    chrome.tabs.onRemoved.addListener((tabId: number) => {
+      fn(tabId);
     });
+  }
+
+  changeTabTitle(id: number): void {
+    chrome.tabs.executeScript(id, { code: 'document.title = ' + id });
   }
 }

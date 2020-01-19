@@ -1,9 +1,10 @@
-export enum TabSearchStatus {
+export enum TabStatus {
   idle = 'idle',
   searching = 'searching',
 }
 
 export interface TabInfo {
   id: number,
-  searchStatus: TabSearchStatus
+  status: TabStatus,
+  searchStatus: boolean,
 }
