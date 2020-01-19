@@ -31,13 +31,39 @@ export class App {
   }
 
   removeObservedTab(id: number | string): void {
-    const numericId = typeof id === 'string' 
+    const numericId = typeof id === 'string'
       ? parseInt(id, 10)
       : id;
 
     const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === numericId);
     this.observedTabs.splice(ind, 1);
 
-    this.tabsService.changeTabTitle(numericId, true);
+    this.tabsService.changeTabTitle(numericId, '(Not Observed)');
+  }
+
+  startTabSearching(id: number | string): void {
+    const numericId = typeof id === 'string'
+    ? parseInt(id, 10)
+    : id;
+
+    const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === numericId);
+ 
+    this.observedTabs[ind].status = TabStatus.searching;
+    this.observedTabs[ind].searchStatus = true;
+
+    this.tabsService.changeTabTitle(numericId, '(Searching)');
+  }
+
+  stopTabSearching(id: number | string): void {
+    const numericId = typeof id === 'string'
+    ? parseInt(id, 10)
+    : id;
+
+    const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === numericId);
+
+    this.observedTabs[ind].status = TabStatus.idle;
+    this.observedTabs[ind].searchStatus = false;
+    
+    this.tabsService.changeTabTitle(numericId);
   }
 }

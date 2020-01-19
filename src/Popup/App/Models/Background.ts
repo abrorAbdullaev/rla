@@ -5,5 +5,7 @@ export interface Background {
   observedTabs: TabInfo[];
   addObservedTab: Function;
   removeObservedTab: Function;
-  tabsService: TabsService
+  startTabSearching: Function;
+  stopTabSearching: Function;
+  tabsService: TabsService;
 }

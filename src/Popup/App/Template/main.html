@@ -33,10 +33,14 @@
           <div class="actions row row-col-2 mt-2">
             <div class="w-100 text-center mb-2">Search</div>
             <div class="col">
-              <button class="btn btn-primary w-100" {{#searchStatus}}disabled="disabled"{{/searchStatus}}>Start</button>
+              <button class="btn btn-primary w-100 tab-start-btn" data-tab-id={{ id }}
+                {{#searchStatus}}disabled="disabled" title="Already Searching"{{/searchStatus}}
+              >Start</button>
             </div>
             <div class="col">
-              <button class="btn btn-primary w-100" {{^searchStatus}}disabled="disabled"{{/searchStatus}}>Stop</button>
+              <button class="btn btn-primary w-100 tab-stop-btn" data-tab-id={{ id }} 
+                {{^searchStatus}}disabled="disabled"{{/searchStatus}}
+              >Stop</button>
             </div>
           </div>
           <hr />

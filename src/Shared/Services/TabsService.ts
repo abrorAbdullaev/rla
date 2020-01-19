@@ -8,13 +8,8 @@ export class TabsService {
     });
   }
 
-  changeTabTitle(id: number, removed?: boolean): void {
-    let newTitle = id.toString();
-
-    if (removed) {
-      newTitle = newTitle + ' (Not Observed)';
-    }
-
+  changeTabTitle(id: number, appendix?: string): void {
+    let newTitle = appendix ? id.toString() + ' ' + appendix : id.toString();
     chrome.tabs.executeScript(id, { code: 'document.title = " ' + newTitle + ' "' });
   }
 }

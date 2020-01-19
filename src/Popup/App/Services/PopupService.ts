@@ -66,6 +66,20 @@ export class PopupService {
           this.renderContent(currentTab, bg);
         }
       });
+
+      $('.tab-start-btn').off().on('click', (event: Event) => {
+        if(event.target) {
+          bg.startTabSearching($(event.target).attr('data-tab-id'));
+          this.renderContent(currentTab, bg);
+        }
+      });
+
+      $('.tab-stop-btn').off().on('click', (event: Event) => {
+        if(event.target) {
+          bg.stopTabSearching($(event.target).attr('data-tab-id'));
+          this.renderContent(currentTab, bg);
+        }
+      });
     }
   }
 
