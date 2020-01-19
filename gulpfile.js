@@ -21,6 +21,7 @@ gulp.task('build', build);
 gulp.task('watch', (cb) => {
   watch([
     './src/**/*.ts',
+    './src/**/*.html'
   ], () => {
     build(cb);
   });

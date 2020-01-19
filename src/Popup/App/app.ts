@@ -1,8 +1,9 @@
 import * as Mustache from 'mustache';
 import { injectable } from "tsyringe";
+import $ from 'jquery';
 
-import { Background } from "./Models";
-import { PopupService } from './Services/PopupService';
+import { Background, MainTemplate } from "./Models";
+import { PopupService, BackgroundService } from './Services';
 
 declare var require: {
   (path: string): any;
@@ -13,26 +14,45 @@ declare var require: {
 
 @injectable()
 export class App {
-  // private bg: Background = null;
+  private bg: Background | null = null;
+  private currentTab: chrome.tabs.Tab | null = null;
+  private mainHtml = require('./Template/main.html');
+  private wrongPageHtml = require('./Template/wrong.html');
 
   constructor(
-    private readonly popupService: PopupService
+    private readonly popupService: PopupService,
+    private readonly backgroundService: BackgroundService,
   ) {}
 
   init(): void {
-    const mainHtml = require('./Template/main.html');
-    const wrongPageHtml = require('./Template/wrong.html');
-
-    let output: string;
     
-    this.isPageRelay().then((isRelay: boolean) => {
-      output = isRelay
-        ? Mustache.render(mainHtml, {})
-        : Mustache.render(wrongPageHtml, {});
-
+    Promise.all([
+      this.backgroundService.getBackground(), 
+      this.backgroundService.getCurrentTab(),
+      this.isPageRelay()
+    ])
+    .then(([ bg, currentTab, isRelay]) => {
         this.popupService.hideLoader();
-        this.popupService.renderContent(output);
-      });
+
+        if(!isRelay) {
+          this.popupService.renderContent(Mustache.render(this.wrongPageHtml, {}));
+          return;
+        }
+
+        this.bg = bg;
+        this.currentTab = currentTab;
+        
+        const mainTemplate = {
+          observedTabs: this.bg ? this.bg.observedTabs : [],
+        } as MainTemplate;
+
+        if(this.bg && !this.bg.observedTabs.filter(({ id }) => this.currentTab && id == this.currentTab.id).length) {
+          mainTemplate['currentNotObserved'] = true;
+          mainTemplate['currentTab'] = this.currentTab;
+        }
+
+        this.renderMainTemplate(mainTemplate);
+    });
   }
 
   private isPageRelay(): Promise<boolean> {
@@ -43,5 +63,20 @@ export class App {
         resolve(Boolean(tab && tab.url && tab.url.includes('relay.amazon.com/tours/loadboard')));
       });
     });
+  }
+
+  private renderMainTemplate(mainTemplate: MainTemplate): void {
+    this.popupService.renderContent(Mustache.render(this.mainHtml, mainTemplate));
+
+    if (mainTemplate.currentNotObserved) {
+      $('#addCurrentButton').off().on('click', () => {
+        
+        if (this.bg && this.currentTab) {
+          this.bg?.addObservedTab(this.currentTab.id);
+
+          console.log(this.bg);
+        }
+      });
+    }
   }
 }

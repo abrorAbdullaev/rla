@@ -1,3 +1,20 @@
-<h1>
-  Hello World
+<h1 class="h2 mt-4 text-center text-primary">
+  Welcome To Relay Automation!
 </h1>
+<h2 class="mt-2 h4 text-center text-secondary">
+  Configure the extension and start booking automatically
+</h2>
+<div class="container mt-2">
+  <hr />
+  {{ #currentNotObserved }}
+    <div class="row">    
+      <span class="text-secondary d-block mx-auto">The current tab is not observed!</span>
+    </div>
+    <div class="row">
+      <button id="addCurrentButton" type="button" class="mt-1 btn btn-primary px-4 mx-auto">Add the button to observed list {{ currentTab.id }}</button>
+    </div>
+  {{ /currentNotObserved }}
+  <div class="row">
+
+  </div>
+</div>
