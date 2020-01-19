@@ -69,7 +69,9 @@ export class PopupService {
 
       $('.tab-start-btn').off().on('click', (event: Event) => {
         if(event.target) {
-          bg.startTabSearching($(event.target).attr('data-tab-id'));
+          bg.startTabSearching($(event.target).attr('data-tab-id'), () => {
+            this.renderContent(currentTab, bg);    
+          });
           this.renderContent(currentTab, bg);
         }
       });

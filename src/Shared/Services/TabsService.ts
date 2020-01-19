@@ -8,6 +8,18 @@ export class TabsService {
     });
   }
 
+  registerRemoveOnUpdate(fn: Function): void {
+    chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {         
+      if( changeInfo.url && !changeInfo.url.includes('https://relay.amazon.com/tours/loadboard')) {
+        fn(tabId);
+      }
+
+      if( changeInfo.status === 'loading' ) {
+        fn(tabId);
+      }
+    })
+  }
+
   changeTabTitle(id: number, appendix?: string): void {
     let newTitle = appendix ? id.toString() + ' ' + appendix : id.toString();
     chrome.tabs.executeScript(id, { code: 'document.title = " ' + newTitle + ' "' });

@@ -1,7 +1,6 @@
-import * as Mustache from 'mustache';
 import { injectable } from "tsyringe";
 
-import { Background, MainTemplate } from "./Models";
+import { Background } from "./Models";
 import { PopupService, BackgroundService } from './Services';
 
 @injectable()
