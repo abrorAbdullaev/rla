@@ -43,12 +43,12 @@ export class App {
 
     const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === numericId);
 
-    if(ind > 0) {
+    if(ind >= 0) {
       this.observedTabs.splice(ind, 1);
-    }
-  
-    if(!withoutTitleUpdate) {
-      this.tabsService.changeTabTitle(numericId, '(Not Observed)');
+
+      if(!withoutTitleUpdate) {
+        this.tabsService.changeTabTitle(numericId, '(Not Observed)');
+      }
     }
   }
 

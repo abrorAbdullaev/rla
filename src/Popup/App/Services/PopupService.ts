@@ -62,6 +62,7 @@ export class PopupService {
       
       $('.tab-remove-btn').off().on('click', (event: Event) => {
         if(event.target) {
+          console.log($(event.target).attr('data-tab-id'));
           bg.removeObservedTab($(event.target).attr('data-tab-id'));
           this.renderContent(currentTab, bg);
         }
@@ -85,8 +86,6 @@ export class PopupService {
 
       $('.tab-switch-btn').off().on('click', (event: Event) => {
         if(event.target) {
-          console.log(bg);
-
           bg.activateTab($(event.target).attr('data-tab-id'));
         }
       });
