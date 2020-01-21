@@ -1,11 +1,11 @@
 import { injectable } from "tsyringe";
 
-import { Background } from "./Models";
+import { App as BackgroundApp } from '../../Background/App/App';
 import { PopupService, BackgroundService } from './Services';
 
 @injectable()
 export class App {
-  private bg?: Background;
+  private bgApp?: BackgroundApp;
   private currentTab?: chrome.tabs.Tab;
 
   constructor(
@@ -21,7 +21,7 @@ export class App {
       this.backgroundService.getCurrentTab(),
       this.isPageRelay()
     ])
-    .then(([ bg, currentTab, isRelay]) => {
+    .then(([ bgWindow, currentTab, isRelay]) => {
         this.popupService.hideLoader();
 
         if(!isRelay) {
@@ -29,10 +29,10 @@ export class App {
           return;
         }
 
-        this.bg = bg;
+        this.bgApp = bgWindow.app;
         this.currentTab = currentTab;
         
-        this.popupService.renderContent(this.bg, this.currentTab);
+        this.popupService.renderContent(this.bgApp, this.currentTab);
     });
   }
 

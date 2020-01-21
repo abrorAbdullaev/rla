@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import { TabsService, SearchService } from '../../Shared/Services';
+import { TabsService, SearchService, PopupService } from '../../Shared/Services';
 import { TabInfo, TabStatus } from '../../Shared/Models/TabInfo';
 
 @injectable()
@@ -21,70 +21,54 @@ export class App {
     });
   }
   
-  addObservedTab(id: number | string): void {
-    const numericId = typeof id === 'string' 
-      ? parseInt(id, 10)
-      : id;
-
+  addObservedTab(id: number): void {
     this.observedTabs.push({
-      id: numericId,
+      id: id,
       status: TabStatus.idle,
       searchStatus: false,
       isFound: false,
     } as TabInfo);
 
-    this.tabsService.changeTabTitle(numericId);
+    this.tabsService.changeTabTitle(id);
   }
 
-  removeObservedTab(id: number | string, withoutTitleUpdate?: boolean): void {    
-    const numericId = typeof id === 'string'
-      ? parseInt(id, 10)
-      : id;
-
-    const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === numericId);
+  removeObservedTab(id: number, withoutTitleUpdate?: boolean): void {    
+    const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === id);
 
     if(ind >= 0) {
       this.observedTabs.splice(ind, 1);
 
       if(!withoutTitleUpdate) {
-        this.tabsService.changeTabTitle(numericId, '(Not Observed)');
+        this.tabsService.changeTabTitle(id, '(Not Observed)');
       }
     }
   }
 
-  startTabSearching(id: number | string, fn?: Function): void {
-    const numericId = typeof id === 'string'
-    ? parseInt(id, 10)
-    : id;
-
-    const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === numericId);
+  startTabSearching(id: number, callBackOnFound?: Function): void {
+    const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === id);
  
     this.observedTabs[ind].status = TabStatus.searching;
     this.observedTabs[ind].searchStatus = true;
     this.observedTabs[ind].isFound = false;
 
-    this.tabsService.changeTabTitle(numericId, '(Searching)');
-    
+    this.tabsService.changeTabTitle(id, '(Searching)');
+
     // Start search loop only if the started tab is the first one on the searched list
     if(this.observedTabs.filter((obj: TabInfo) => obj.searchStatus).length === 1) {
-      this.startSearch(this.observedTabs.filter((obj: TabInfo) => Boolean(obj.searchStatus)), fn);
+      this.startSearch(this.observedTabs.filter((obj: TabInfo) => Boolean(obj.searchStatus)), callBackOnFound);
     }
   }
 
-  stopTabSearching(id: number | string): void {
-    const numericId = typeof id === 'string'
-    ? parseInt(id, 10)
-    : id;
-
-    const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === numericId);
+  stopTabSearching(id: number): void {
+    const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === id);
 
     this.observedTabs[ind].status = TabStatus.idle;
     this.observedTabs[ind].searchStatus = false;
     
-    this.tabsService.changeTabTitle(numericId);
+    this.tabsService.changeTabTitle(id);
   }
 
-  startSearch(searchedTabs: TabInfo[], onFound?: Function) {
+  startSearch(searchedTabs: TabInfo[], callBackOnFound?: Function) {
     if(searchedTabs.length) {
       this.searchService.search(searchedTabs.map((obj: TabInfo) => obj.id)).then((response: Array<{ id: number }>) => {
         if(response.length) {
@@ -95,22 +79,22 @@ export class App {
             this.observedTabs[ind].searchStatus = false;
             this.observedTabs[ind].isFound = true;
 
+            console.log(callBackOnFound);
+
+            if(callBackOnFound) {
+              callBackOnFound();
+            }
+
             this.tabsService.changeTabTitle(resp.id, '( !Found! )');
           });
-
-          onFound && onFound();
         }
         
-        this.startSearch(this.observedTabs.filter((obj: TabInfo) => obj.searchStatus,), onFound);
+        this.startSearch(this.observedTabs.filter((obj: TabInfo) => obj.searchStatus,));
       });
     }
   }
 
-  activateTab(id: number | string) {
-    const numericId = typeof id === 'string'
-    ? parseInt(id, 10)
-    : id;
-
-    this.tabsService.switchToTab(numericId);
+  activateTab(id: number) {
+    this.tabsService.switchToTab(id);
   }
 }

@@ -1,7 +1,8 @@
 import { injectable } from "tsyringe";
 import * as Mustache from 'mustache';
 import $ from 'jquery';
-import { MainTemplate, Background } from "../Models";
+import { MainTemplate } from "../../Popup/App/Models";
+import { App as BackgroundApp } from '../../Background/App/App';
 
 declare var require: {
   (path: string): any;
@@ -12,11 +13,11 @@ declare var require: {
 
 @injectable()
 export class PopupService {
-  private mainHtml = require('../Template/main.html');
-  private wrongPageHtml = require('../Template/wrong.html');
+  private mainHtml = require('./Template/main.html');
+  private wrongPageHtml = require('./Template/wrong.html');
 
   renderContent(
-    bg?: Background,
+    bg?: BackgroundApp,
     currentTab?: chrome.tabs.Tab,
   ): void {
     const mainTemplate = {
@@ -47,13 +48,15 @@ export class PopupService {
 
   private registerJQueryEvents(
     mainTemplate: MainTemplate,
-    bg?: Background,
+    bg?: BackgroundApp,
   ): void {
     if (bg) {
       if(mainTemplate.currentNotObserved) {
         $('#addCurrentButton').off().on('click', (event: Event) => {
           if (event.target) {
-            bg.addObservedTab($(event.target).attr('data-tab-id'));
+            const tabId = $(event.target).attr('data-tab-id');
+
+            bg.addObservedTab(parseInt(tabId ? tabId : '0'));
             this.renderContent(bg);
           }
         });
@@ -61,15 +64,19 @@ export class PopupService {
       
       $('.tab-remove-btn').off().on('click', (event: Event) => {
         if(event.target) {
-          bg.removeObservedTab($(event.target).attr('data-tab-id'));
+          const tabId = $(event.target).attr('data-tab-id');
+
+          bg.removeObservedTab(parseInt(tabId ? tabId : '0'));
           this.renderContent(bg);
         }
       });
 
       $('.tab-start-btn').off().on('click', (event: Event) => {
         if(event.target) {
-          bg.startTabSearching($(event.target).attr('data-tab-id'), () => {
-            this.renderContent(bg);
+          const tabId = $(event.target).attr('data-tab-id');
+
+          bg.startTabSearching(parseInt(tabId ? tabId : '0'), () => {
+            console.log('InsideBitches');
           });
 
           this.renderContent(bg);
@@ -78,14 +85,18 @@ export class PopupService {
 
       $('.tab-stop-btn').off().on('click', (event: Event) => {
         if(event.target) {
-          bg.stopTabSearching($(event.target).attr('data-tab-id'));
+          const tabId = $(event.target).attr('data-tab-id');
+
+          bg.stopTabSearching(parseInt(tabId ? tabId : '0'));
           this.renderContent(bg);
         }
       });
 
       $('.tab-switch-btn').off().on('click', (event: Event) => {
         if(event.target) {
-          bg.activateTab($(event.target).attr('data-tab-id'));
+          const tabId = $(event.target).attr('data-tab-id');
+
+          bg.activateTab(parseInt(tabId ? tabId : '0'));
         }
       });
     }

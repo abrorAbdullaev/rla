@@ -1,2 +1,2 @@
 export * from './BackgroundService';
-export * from './PopupService';
+export * from '../../../Shared/Services/PopupService';
