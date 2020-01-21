@@ -31,6 +31,7 @@ export class PopupService {
       currentNotObserved: false,
     } as MainTemplate;
 
+    // If the currentTab
     if(currentTab && !bg.observedTabs.filter(({ id }) => id == currentTab.id).length) {
       mainTemplate['currentNotObserved'] = true;
       mainTemplate['currentTab'] = currentTab;

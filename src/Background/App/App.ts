@@ -76,17 +76,18 @@ export class App {
 
     if(searchedTabs.length && !this.searching) {
       this.searching = true;
-      this.searchService.search(searchedTabs.map((obj: TabInfo) => obj.id)).then((response: Array<{ id: number }>) => {
+      
+      this.searchService.search(searchedTabs.map((obj: TabInfo) => obj.id)).then((response: Array<{ tabId: number }>) => {
         if(response.length) {
-          response.forEach((resp: { id: number }) => {
-            let ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === resp.id);
+          response.forEach((resp: { tabId: number }) => {
+            let ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === resp.tabId);
 
             this.observedTabs[ind].status = TabStatus.found;
             this.observedTabs[ind].searchStatus = false;
             this.observedTabs[ind].isFound = true;
 
             this.onResultFound(this);
-            this.tabsService.changeTabTitle(resp.id, '( !Found! )');
+            this.tabsService.changeTabTitle(resp.tabId, '( !Found! )');
           });
         }
         

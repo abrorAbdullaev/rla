@@ -10,33 +10,65 @@ export class SearchService {
     this.sound.load();
   }
 
-  search(ids: Array<number>): Promise<Array<{ id: number }>> {
+  search(tabIds: Array<number>): Promise<Array<{ tabId: number }>> {
     return new Promise((resolve) => {
-      let response = [] as Array<{ id: number }>;
-      // let promises = Array<Promise<any>>();
-      let resultsCount = 0;
+      let response = [] as Array<{ tabId: number }>;
 
-      ids.forEach((id: number) => {
-        chrome.tabs.executeScript(id, { 'code': 'document.getElementById("application").innerHTML'}, (result) => {
-          let respHtml = $(result[0]);
-          resultsCount++;
+      this.getSearchedTabsContents(tabIds).then((tabsContents) => {
+        tabsContents.forEach(({tabId, content}) => {
+          const tabHtmlContent: JQuery<any> = $(content).first();
 
-          if(respHtml.find('.tour-listing__card').length) {
-            response.push({ id });
-          } else {
-            if(respHtml.find('.no-tours-found').length || respHtml.find('.tour-listing--loadboard').length) {
-              this.executeRefresh(id);
-            }
+          if (tabHtmlContent.find('.tour-listing__card').length) {
+            response.push({ tabId });
+          } else if (this.canRefresh(tabHtmlContent)) {
+            this.executeRefresh(tabId);
           }
+        });
 
-          if(resultsCount == ids.length) {
-            // Play the sound if the results are found
-            response.length && this.sound.play();
-            resolve(response);
-          }
-        })
-      })
+        resolve(response);
+      });
+
+      // Promise.all(this.getPromisesArray(ids)).then((responseHtmls) => {
+      //   responseHtmls.forEach((resultHtmls) => {
+      //     let respHtml = $(resultHtml).first();
+      //   });
+      // });
+
+      // ids.forEach((id: number) => {
+      //   chrome.tabs.executeScript(id, { 'code': 'document.getElementById("application").innerHTML'}, (result) => {
+          
+      //     resultsCount++;
+
+      //     if(respHtml.find('.tour-listing__card').length) {
+      //       response.push({ id });
+      //     } else {
+      //       if(respHtml.find('.no-tours-found').length || respHtml.find('.tour-listing--loadboard').length) {
+      //         this.executeRefresh(id);
+      //       }
+      //     }
+
+      //     if(resultsCount == ids.length) {
+      //       // Play the sound if the results are found
+      //       response.length && this.sound.play();
+      //       resolve(response);
+      //     }
+      //   })
+      // });
     });
+  }
+
+  private getSearchedTabsContents(tabIds: number[]): Promise<Array<{ tabId: number, content: any }>> {
+    return Promise.all(
+      tabIds.map((tabId) => ({
+        tabId: tabId,
+        content: chrome.tabs.executeScript(tabId, { 'code': 'document.getElementById("application").innerHTML' })
+      }))
+    );
+  }
+
+  private canRefresh(htmlContent: JQuery<any>): boolean {
+    return htmlContent.find('.no-tours-found').length > 0
+      || htmlContent.find('.tour-listing--loadboard').length > 0
   }
 
   private executeRefresh(tabId: number): void {

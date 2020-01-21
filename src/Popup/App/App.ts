@@ -1,7 +1,8 @@
 import { injectable } from "tsyringe";
 
 import { App as BackgroundApp } from '../../Background/App/App';
-import { PopupService, BackgroundService } from './Services';
+import { PopupService } from '../../Shared/Services';
+import { BackgroundService } from './Services';
 
 @injectable()
 export class App {
@@ -31,7 +32,7 @@ export class App {
           }
 
           this.popupService.parseTemplate();
-          
+
           // Render content via the reference from background
           // can be also done via current object this.popupService.renderContent(bgpp, currentTab)
           this.popupService.renderContent(bgApp, currentTab)
