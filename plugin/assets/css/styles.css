@@ -30,3 +30,19 @@ body {
 .border-primary {
   border-color: var(--primaryColor) !important;
 }
+
+.mark {
+  vertical-align: middle;
+  display: inline-block;
+  border-radius: 100%;
+  height: 15px;
+  width: 15px;
+}
+
+.mark-warning {
+  background-color: yellow;
+}
+
+.mark-success {
+  background-color: green;
+}

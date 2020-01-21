@@ -7,6 +7,9 @@
    *  status:       "idle" | "searching"
    *  searchStatus: boolean
    *  isFound:      boolean
+   *  filters:      {
+   *                   dateTillFilter: string
+   *                }
    */
 -->
 <h1 class="h2 mt-4 text-center text-primary">
@@ -35,8 +38,26 @@
         <div class="border border-primary p-2">
           <h5>Tab Id: {{ id }}</h5>
           <span>Status: {{ status }} 
-            {{ #isFound }}<span style="background-color: red; width: 15px; height: 15px; border-radius: 100%; display: inline-block;"></span>{{ /isFound }}
+            {{ #isFound }}<span class="mark mark-success"></span>{{ /isFound }}
           </span>
+          {{#isFound}}
+            <button class="btn btn-primary w-100 tab-switch-btn mt-1" data-tab-id={{ id }}>Switch</button>
+          {{/isFound}}
+          <div class="filters mt-1">
+          <form id="filtersForm">
+              <hr />
+              <div class="form-group">
+              <label for="date-till-filter">Time Filter 
+                {{^filters.dateTillFilter}}<span class="mark mark-warning"></span> (Not given){{/filters.dateTillFilter}}
+                {{#filters.dateTillFilter}}<span class="mark mark-success"></span>{{/filters.dateTillFilter}}
+              </label>
+                <input name="date-till-filter" type="datetime-local" class="form-control" 
+                  value="{{ filters.dateTillFilter }}" data-tab-id={{ id }}/>
+                <small class="form-text text-muted">Insert the date till which you want to search.</small>
+              </div>
+            </form>
+          </div>
+          <hr />
           <div class="actions row row-col-2 mt-2">
             <div class="w-100 text-center mb-2">Search</div>
             <div class="col">
@@ -54,9 +75,11 @@
           <button class="btn btn-primary w-100 tab-remove-btn" data-tab-id={{ id }}
             {{#searchStatus}}disabled="disabled" title="Please stop the search before remove"{{/searchStatus}}
           >Remove</button>
-          <button class="btn btn-primary w-100 tab-switch-btn mt-1" data-tab-id={{ id }}>Switch</button>
+          {{^isFound}}
+            <button class="btn btn-primary w-100 tab-switch-btn mt-1" data-tab-id={{ id }}>Switch</button>
+          {{/isFound}}
         </div>
-      </div>    
+      </div>
     {{ /observedTabs }}
   </div>
 </div>

@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 import { TabsService, SearchService } from '../../Shared/Services';
-import { TabInfo, TabStatus } from '../../Shared/Models/TabInfo';
+import { TabInfo, TabStatus, TabFilters } from '../../Shared/Models/TabInfo';
 
 @injectable()
 export class App {
@@ -26,45 +26,48 @@ export class App {
     });
   }
   
-  addObservedTab(id: number): void {
+  addObservedTab(tabId: number): void {
     this.observedTabs.push({
-      id: id,
+      id: tabId,
       status: TabStatus.idle,
       searchStatus: false,
       isFound: false,
+      filters: {
+        dateTillFilter: '',
+      } as TabFilters
     } as TabInfo);
 
-    this.tabsService.changeTabTitle(id);
+    this.tabsService.changeTabTitle(tabId);
   }
 
-  removeObservedTab(id: number, withoutTitleUpdate?: boolean): void {    
-    const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === id);
+  removeObservedTab(tabId: number, withoutTitleUpdate?: boolean): void {    
+    const ind = this.getIndexByTabId(tabId);
 
     if (ind >= 0) {
       this.observedTabs.splice(ind, 1);
     }
     
     if (!withoutTitleUpdate) {
-      this.tabsService.changeTabTitle(id, '(Not Observed)');
+      this.tabsService.changeTabTitle(tabId, '(Not Observed)');
     }
   }
 
-  startTabSearching(id: number): void {
-    const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === id);
+  startTabSearching(tabId: number): void {
+    const ind = this.getIndexByTabId(tabId);
  
     this.observedTabs[ind].status = TabStatus.searching;
     this.observedTabs[ind].searchStatus = true;
     this.observedTabs[ind].isFound = false;
 
-    this.tabsService.changeTabTitle(id, '(Searching)');
+    this.tabsService.changeTabTitle(tabId, '(Searching)');
 
     if (this.getSearchedTabs().length === 1) {
       this.startSearch();
     }
   }
 
-  stopTabSearching(id: number, resultsFound?: boolean): void {
-    const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === id);
+  stopTabSearching(tabId: number, resultsFound?: boolean): void {
+    const ind = this.getIndexByTabId(tabId);
 
     this.observedTabs[ind].status = TabStatus.idle;
     this.observedTabs[ind].searchStatus = false;
@@ -74,7 +77,12 @@ export class App {
       this.observedTabs[ind].isFound = true;
     }
     
-    this.tabsService.changeTabTitle(id);
+    this.tabsService.changeTabTitle(tabId);
+  }
+
+  updateFilters(tabId: number, filters: TabFilters) {
+    const ind = this.getIndexByTabId(tabId);
+    this.observedTabs[ind].filters = filters;
   }
 
   startSearch() {
@@ -100,7 +108,11 @@ export class App {
     this.tabsService.switchToTab(id);
   }
 
-  getSearchedTabs(): TabInfo[] {
+  getIndexByTabId(tabId: number): number {
+    return this.observedTabs.findIndex((obj: TabInfo) => obj.id === tabId);
+  }
+
+  private getSearchedTabs(): TabInfo[] {
     return this.observedTabs.filter((obj: TabInfo) => Boolean(obj.searchStatus));
   }
 }

@@ -4,9 +4,14 @@ export enum TabStatus {
   found = 'found'
 }
 
+export interface TabFilters {
+  dateTillFilter: string
+}
+
 export interface TabInfo {
   id: number,
   status: TabStatus,
   searchStatus: boolean,
   isFound: boolean,
+  filters: TabFilters,
 }

@@ -14,23 +14,27 @@ declare var require: {
 interface ActionMapObject {
   condition: boolean,
   elementSelector: string,
-  action(tabId: number): void,
+  action(tabId: number, eventTarget?: JQuery<EventTarget>): void,
+  event: string,
 }
 
 @injectable()
 export class PopupService {
   private mainHtml = require('./Template/main.html');
   private wrongPageHtml = require('./Template/wrong.html');
+  private cachedCurrentTab?: chrome.tabs.Tab;
 
   renderContent(
     bg: BackgroundApp,
-    currentTab?: chrome.tabs.Tab,
+    currTab?: chrome.tabs.Tab,
   ): void {
+    // Internal local cache to be used in case if the tab is removed from observation
+    const currentTab = this.getCurrentTab(currTab);
     const mainTemplate = {
       observedTabs: bg.observedTabs,
       currentNotObserved: false,
     } as MainTemplate;
-
+    
     // If the currentTab
     if(currentTab && !bg.observedTabs.filter(({ id }) => id == currentTab.id).length) {
       mainTemplate['currentNotObserved'] = true;
@@ -59,59 +63,87 @@ export class PopupService {
     mainTemplate: MainTemplate,
     bg: BackgroundApp,
   ): void {
-    if (bg) {
-      const actionsMap: ActionMapObject[] = [
-        {
-          condition: mainTemplate.currentNotObserved,
-          elementSelector: '#addCurrentButton',
-          action: (tabId: number) => {
-            bg.addObservedTab(tabId);
-          }
-        },
-        {
-          condition: true,
-          elementSelector: '.tab-remove-btn',
-          action: (tabId: number) => {
-            bg.removeObservedTab(tabId);
-          },
-        },
-        {
-          condition: true,
-          elementSelector: '.tab-start-btn',
-          action: (tabId: number) => {
-            bg.startTabSearching(tabId);
-          }
-        },
-        {
-          condition: true,
-          elementSelector: '.tab-stop-btn',
-          action: (tabId: number) => {
-            bg.stopTabSearching(tabId);
-          }
-        },
-        {
-          condition: true,
-          elementSelector: '.tab-switch-btn',
-          action: (tabId: number) => {
-            bg.activateTab(tabId);
-          }
+    const actionsMap: ActionMapObject[] = [
+      {
+        condition: mainTemplate.currentNotObserved,
+        elementSelector: '#addCurrentButton',
+        event: 'click',
+        action: (tabId: number) => {
+          bg.addObservedTab(tabId);
         }
-      ]
-      
-      actionsMap.forEach((actionMap: ActionMapObject) => {
-        if(actionMap.condition) {
-          $(actionMap.elementSelector).off().on('click', (event: Event) => {
-            if(event.target) {
-              const tabId = $(event.target).attr('data-tab-id');
-              
-              actionMap.action(parseInt(tabId ? tabId : '-1'));
-              this.renderContent(bg);
-            }
-          });
+      },
+      {
+        condition: true,
+        elementSelector: '.tab-remove-btn',
+        event: 'click',
+        action: (tabId: number) => {
+          bg.removeObservedTab(tabId);
+        },
+      },
+      {
+        condition: true,
+        elementSelector: '.tab-start-btn',
+        event: 'click',
+        action: (tabId: number) => {
+          bg.startTabSearching(tabId);
         }
-      });
-    }
+      },
+      {
+        condition: true,
+        elementSelector: '.tab-stop-btn',
+        event: 'click',
+        action: (tabId: number) => {
+          bg.stopTabSearching(tabId);
+        }
+      },
+      {
+        condition: true,
+        elementSelector: '.tab-switch-btn',
+        event: 'click',
+        action: (tabId: number) => {
+          bg.activateTab(tabId);
+        }
+      },
+      {
+        condition: true,
+        elementSelector: '[name="date-till-filter"]',
+        event: 'change',
+        action: (tabId: number, eventTarget: JQuery<EventTarget>) => {
+          const filters = bg.observedTabs[bg.getIndexByTabId(tabId)].filters;
+          const val = eventTarget.val();
+
+          if (val) {
+            filters.dateTillFilter = val.toString()
+          }
+
+          bg.updateFilters(tabId, filters);
+        }
+      }
+    ]
+    
+    actionsMap.forEach((actionMap: ActionMapObject) => {
+      if(actionMap.condition) {
+        $(actionMap.elementSelector).off().on(actionMap.event, (event: Event) => {
+          if(event.target) {
+            const eventTarget = $(event.target);
+            const tabId = eventTarget.attr('data-tab-id');
+
+            actionMap.action(parseInt(tabId ? tabId : '-1'), eventTarget);
+
+            this.renderContent(bg);
+          }
+        });
+      }
+    });
   }
+
+  private getCurrentTab(currentTab?: chrome.tabs.Tab ): chrome.tabs.Tab | undefined {
+    if (currentTab) {
+      this.cachedCurrentTab = currentTab;
+    }
+
+    return this.cachedCurrentTab;
+  };
 
   private render(content: string): void {
     const popup = $('#app-wrapper');
