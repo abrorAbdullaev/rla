@@ -1,15 +1,22 @@
 import { injectable } from 'tsyringe';
-import { TabsService, SearchService, PopupService } from '../../Shared/Services';
+import { TabsService, SearchService } from '../../Shared/Services';
 import { TabInfo, TabStatus } from '../../Shared/Models/TabInfo';
 
 @injectable()
 export class App {
+
+  searching: boolean = false;
   observedTabs: Array<TabInfo> = [];
+  onResultFound: (bgApp: this) => void;
 
   constructor(
     public tabsService: TabsService,
     public searchService: SearchService,
-  ) {}
+  ) {
+    this.onResultFound = (bgApp: this) => {
+      console.log('background onResultFound has not been overridden', bgApp);
+    };
+  }
 
   init(): void {
     this.tabsService.registerOnCloseEvents((tabId: number) => {
@@ -44,7 +51,7 @@ export class App {
     }
   }
 
-  startTabSearching(id: number, callBackOnFound?: Function): void {
+  startTabSearching(id: number): void {
     const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === id);
  
     this.observedTabs[ind].status = TabStatus.searching;
@@ -52,11 +59,7 @@ export class App {
     this.observedTabs[ind].isFound = false;
 
     this.tabsService.changeTabTitle(id, '(Searching)');
-
-    // Start search loop only if the started tab is the first one on the searched list
-    if(this.observedTabs.filter((obj: TabInfo) => obj.searchStatus).length === 1) {
-      this.startSearch(this.observedTabs.filter((obj: TabInfo) => Boolean(obj.searchStatus)), callBackOnFound);
-    }
+    this.startSearch();
   }
 
   stopTabSearching(id: number): void {
@@ -68,8 +71,11 @@ export class App {
     this.tabsService.changeTabTitle(id);
   }
 
-  startSearch(searchedTabs: TabInfo[], callBackOnFound?: Function) {
-    if(searchedTabs.length) {
+  startSearch() {
+    const searchedTabs = this.observedTabs.filter((obj: TabInfo) => Boolean(obj.searchStatus));
+
+    if(searchedTabs.length && !this.searching) {
+      this.searching = true;
       this.searchService.search(searchedTabs.map((obj: TabInfo) => obj.id)).then((response: Array<{ id: number }>) => {
         if(response.length) {
           response.forEach((resp: { id: number }) => {
@@ -79,17 +85,12 @@ export class App {
             this.observedTabs[ind].searchStatus = false;
             this.observedTabs[ind].isFound = true;
 
-            console.log(callBackOnFound);
-
-            if(callBackOnFound) {
-              callBackOnFound();
-            }
-
+            this.onResultFound(this);
             this.tabsService.changeTabTitle(resp.id, '( !Found! )');
           });
         }
         
-        this.startSearch(this.observedTabs.filter((obj: TabInfo) => obj.searchStatus,));
+        this.startSearch();
       });
     }
   }

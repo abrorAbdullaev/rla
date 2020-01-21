@@ -1,7 +1,7 @@
 import { injectable } from "tsyringe";
 import * as Mustache from 'mustache';
 import $ from 'jquery';
-import { MainTemplate } from "../../Popup/App/Models";
+import { MainTemplate } from "../Models";
 import { App as BackgroundApp } from '../../Background/App/App';
 
 declare var require: {
@@ -11,30 +11,38 @@ declare var require: {
   ensure: (paths: string[], callback: (require: <T>(path: string) => T) => void) => void;
 };
 
+interface ActionMapObject {
+  condition: boolean,
+  elementSelector: string,
+  action(tabId: number): void,
+}
+
 @injectable()
 export class PopupService {
   private mainHtml = require('./Template/main.html');
   private wrongPageHtml = require('./Template/wrong.html');
 
   renderContent(
-    bg?: BackgroundApp,
+    bg: BackgroundApp,
     currentTab?: chrome.tabs.Tab,
   ): void {
     const mainTemplate = {
-      observedTabs: bg ? bg.observedTabs : [],
+      observedTabs: bg.observedTabs,
+      currentNotObserved: false,
     } as MainTemplate;
 
-    if(bg && currentTab && !bg.observedTabs.filter(({ id }) => id == currentTab.id).length) {
+    if(currentTab && !bg.observedTabs.filter(({ id }) => id == currentTab.id).length) {
       mainTemplate['currentNotObserved'] = true;
       mainTemplate['currentTab'] = currentTab;
     }
-
+  
     this.render(Mustache.render(this.mainHtml, mainTemplate));
     this.registerJQueryEvents(mainTemplate, bg);
   }
 
   renderWrongPage() {
     this.render(Mustache.render(this.wrongPageHtml, {}));
+    this.hideLoader();
   }
 
   hideLoader(): void {
@@ -48,55 +56,57 @@ export class PopupService {
 
   private registerJQueryEvents(
     mainTemplate: MainTemplate,
-    bg?: BackgroundApp,
+    bg: BackgroundApp,
   ): void {
     if (bg) {
-      if(mainTemplate.currentNotObserved) {
-        $('#addCurrentButton').off().on('click', (event: Event) => {
-          if (event.target) {
-            const tabId = $(event.target).attr('data-tab-id');
-
-            bg.addObservedTab(parseInt(tabId ? tabId : '0'));
-            this.renderContent(bg);
+      const actionsMap: ActionMapObject[] = [
+        {
+          condition: mainTemplate.currentNotObserved,
+          elementSelector: '#addCurrentButton',
+          action: (tabId: number) => {
+            bg.addObservedTab(tabId);
           }
-        });
-      }
+        },
+        {
+          condition: true,
+          elementSelector: '.tab-remove-btn',
+          action: (tabId: number) => {
+            bg.removeObservedTab(tabId);
+          },
+        },
+        {
+          condition: true,
+          elementSelector: '.tab-start-btn',
+          action: (tabId: number) => {
+            bg.startTabSearching(tabId);
+          }
+        },
+        {
+          condition: true,
+          elementSelector: '.tab-stop-btn',
+          action: (tabId: number) => {
+            bg.stopTabSearching(tabId);
+          }
+        },
+        {
+          condition: true,
+          elementSelector: '.tab-switch-btn',
+          action: (tabId: number) => {
+            bg.activateTab(tabId);
+          }
+        }
+      ]
       
-      $('.tab-remove-btn').off().on('click', (event: Event) => {
-        if(event.target) {
-          const tabId = $(event.target).attr('data-tab-id');
-
-          bg.removeObservedTab(parseInt(tabId ? tabId : '0'));
-          this.renderContent(bg);
-        }
-      });
-
-      $('.tab-start-btn').off().on('click', (event: Event) => {
-        if(event.target) {
-          const tabId = $(event.target).attr('data-tab-id');
-
-          bg.startTabSearching(parseInt(tabId ? tabId : '0'), () => {
-            console.log('InsideBitches');
+      actionsMap.forEach((actionMap: ActionMapObject) => {
+        if(actionMap.condition) {
+          $(actionMap.elementSelector).off().on('click', (event: Event) => {
+            if(event.target) {
+              const tabId = $(event.target).attr('data-tab-id');
+              
+              actionMap.action(parseInt(tabId ? tabId : '-1'));
+              this.renderContent(bg);
+            }
           });
-
-          this.renderContent(bg);
-        }
-      });
-
-      $('.tab-stop-btn').off().on('click', (event: Event) => {
-        if(event.target) {
-          const tabId = $(event.target).attr('data-tab-id');
-
-          bg.stopTabSearching(parseInt(tabId ? tabId : '0'));
-          this.renderContent(bg);
-        }
-      });
-
-      $('.tab-switch-btn').off().on('click', (event: Event) => {
-        if(event.target) {
-          const tabId = $(event.target).attr('data-tab-id');
-
-          bg.activateTab(parseInt(tabId ? tabId : '0'));
         }
       });
     }

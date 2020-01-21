@@ -7,10 +7,14 @@ declare global {
 
 @injectable()
 export class BackgroundService {
-  getBackground(): Promise<Window> {
-    return new Promise<Window>((resolve) => {
+  getBackground(): Promise<BackgroundApp> {
+    return new Promise<BackgroundApp>((resolve, reject) => {
       chrome.runtime.getBackgroundPage((bg) => {
-        resolve(bg);
+        if (bg) {
+          resolve(bg.app);
+        } else {
+          reject('Background App Is Not Found');
+        }
       });
     });
   }

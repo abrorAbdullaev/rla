@@ -5,34 +5,41 @@ import { PopupService, BackgroundService } from './Services';
 
 @injectable()
 export class App {
-  private bgApp?: BackgroundApp;
-  private currentTab?: chrome.tabs.Tab;
+  private bgApp: Promise<BackgroundApp>;
+  private currentTab: Promise<chrome.tabs.Tab>;
 
   constructor(
     private readonly popupService: PopupService,
     private readonly backgroundService: BackgroundService,
   ) {
-    this.popupService.parseTemplate();
+    this.bgApp = this.backgroundService.getBackground();
+    this.currentTab = this.backgroundService.getCurrentTab();
   }
 
   init(): void {
-    Promise.all([
-      this.backgroundService.getBackground(), 
-      this.backgroundService.getCurrentTab(),
-      this.isPageRelay()
-    ])
-    .then(([ bgWindow, currentTab, isRelay]) => {
-        this.popupService.hideLoader();
+    this.isPageRelay().then((isPageRelay) => {
+      if (isPageRelay) {
+        Promise.all([
+          this.bgApp,
+          this.currentTab
+        ]).then(([bgApp, currentTab]) => {
+          /**
+           * Do overrides of background here or assign callbacks
+           */
+          bgApp.onResultFound = (bgApp: BackgroundApp) => {
+            this.popupService.renderContent(bgApp);
+          }
 
-        if(!isRelay) {
-          this.popupService.renderWrongPage();
-          return;
-        }
-
-        this.bgApp = bgWindow.app;
-        this.currentTab = currentTab;
-        
-        this.popupService.renderContent(this.bgApp, this.currentTab);
+          this.popupService.parseTemplate();
+          
+          // Render content via the reference from background
+          // can be also done via current object this.popupService.renderContent(bgpp, currentTab)
+          this.popupService.renderContent(bgApp, currentTab)
+          this.popupService.hideLoader();
+        })
+      } else {
+        this.popupService.renderWrongPage();
+      }
     });
   }
 
