@@ -1,7 +1,7 @@
-import { TabInfo } from "../../../Shared";
+import { TabInfo } from "..";
 
 export interface MainTemplate {
   observedTabs: TabInfo[],
-  currentNotObserved?: boolean,
+  currentNotObserved: boolean,
   currentTab?: chrome.tabs.Tab,
 }
