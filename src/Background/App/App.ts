@@ -74,9 +74,7 @@ export class App {
   startSearch() {
     const searchedTabs = this.observedTabs.filter((obj: TabInfo) => Boolean(obj.searchStatus));
 
-    if(searchedTabs.length && !this.searching) {
-      this.searching = true;
-      
+    if(searchedTabs.length) {
       this.searchService.search(searchedTabs.map((obj: TabInfo) => obj.id)).then((response: Array<{ tabId: number }>) => {
         if(response.length) {
           response.forEach((resp: { tabId: number }) => {

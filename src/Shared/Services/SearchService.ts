@@ -27,33 +27,6 @@ export class SearchService {
 
         resolve(response);
       });
-
-      // Promise.all(this.getPromisesArray(ids)).then((responseHtmls) => {
-      //   responseHtmls.forEach((resultHtmls) => {
-      //     let respHtml = $(resultHtml).first();
-      //   });
-      // });
-
-      // ids.forEach((id: number) => {
-      //   chrome.tabs.executeScript(id, { 'code': 'document.getElementById("application").innerHTML'}, (result) => {
-          
-      //     resultsCount++;
-
-      //     if(respHtml.find('.tour-listing__card').length) {
-      //       response.push({ id });
-      //     } else {
-      //       if(respHtml.find('.no-tours-found').length || respHtml.find('.tour-listing--loadboard').length) {
-      //         this.executeRefresh(id);
-      //       }
-      //     }
-
-      //     if(resultsCount == ids.length) {
-      //       // Play the sound if the results are found
-      //       response.length && this.sound.play();
-      //       resolve(response);
-      //     }
-      //   })
-      // });
     });
   }
 
