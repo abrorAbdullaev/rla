@@ -4,8 +4,8 @@ import { TabInfo, TabStatus } from '../../Shared/Models/TabInfo';
 
 @injectable()
 export class App {
+  private searching: boolean = false;
 
-  searching: boolean = false;
   observedTabs: Array<TabInfo> = [];
   onResultFound: (bgApp: this) => void;
 
