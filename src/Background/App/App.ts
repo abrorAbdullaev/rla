@@ -42,12 +42,10 @@ export class App {
   removeObservedTab(id: number, withoutTitleUpdate?: boolean): void {    
     const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === id);
 
-    if(ind >= 0) {
-      this.observedTabs.splice(ind, 1);
+    this.observedTabs.splice(ind, 1);
 
-      if(!withoutTitleUpdate) {
-        this.tabsService.changeTabTitle(id, '(Not Observed)');
-      }
+    if(!withoutTitleUpdate) {
+      this.tabsService.changeTabTitle(id, '(Not Observed)');
     }
   }
 
@@ -62,39 +60,44 @@ export class App {
     this.startSearch();
   }
 
-  stopTabSearching(id: number): void {
+  stopTabSearching(id: number, resultsFound?: boolean): void {
     const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === id);
 
     this.observedTabs[ind].status = TabStatus.idle;
     this.observedTabs[ind].searchStatus = false;
+
+    if (resultsFound) {
+      this.observedTabs[ind].status = TabStatus.found;
+      this.observedTabs[ind].isFound = true;
+    }
     
     this.tabsService.changeTabTitle(id);
   }
 
   startSearch() {
-    const searchedTabs = this.observedTabs.filter((obj: TabInfo) => Boolean(obj.searchStatus));
+    const searchedTabs = this.getSearchedTabs();
 
-    if(searchedTabs.length) {
-      this.searchService.search(searchedTabs.map((obj: TabInfo) => obj.id)).then((response: Array<{ tabId: number }>) => {
-        if(response.length) {
-          response.forEach((resp: { tabId: number }) => {
-            let ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === resp.tabId);
-
-            this.observedTabs[ind].status = TabStatus.found;
-            this.observedTabs[ind].searchStatus = false;
-            this.observedTabs[ind].isFound = true;
-
-            this.onResultFound(this);
-            this.tabsService.changeTabTitle(resp.tabId, '( !Found! )');
-          });
-        }
+    if (this.getSearchedTabs().length) {
+      this.searchService.search(searchedTabs.map((obj: TabInfo) => obj.id))
+        .then((response: Array<{ tabId: number }>) => {
+          if(response.length) {
+            response.forEach(({ tabId }) => {
+              this.stopTabSearching(tabId, true);
+              this.onResultFound(this);
+              this.tabsService.changeTabTitle(tabId, '( !Found! )');
+            });
+          }
         
-        this.startSearch();
+          this.startSearch();
       });
     }
   }
 
   activateTab(id: number) {
     this.tabsService.switchToTab(id);
+  }
+
+  getSearchedTabs(): TabInfo[] {
+    return this.observedTabs.filter((obj: TabInfo) => Boolean(obj.searchStatus));
   }
 }
