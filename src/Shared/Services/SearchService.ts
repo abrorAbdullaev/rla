@@ -1,5 +1,7 @@
 import $ from 'jquery';
+import moment from 'moment';
 import { injectable } from "tsyringe";
+import { TabFilters } from '../Models';
 
 @injectable()
 export class SearchService {
@@ -10,23 +12,46 @@ export class SearchService {
     this.sound.load();
   }
 
-  search(tabIds: Array<number>): Promise<Array<{ tabId: number }>> {
+  search(searchItems: Array<{ tabId: number, filters: TabFilters }>): Promise<Array<{ tabId: number }>> {
     return new Promise((resolve) => {
       let response = [] as Array<{ tabId: number }>;
 
-      this.getSearchedTabsContents(tabIds).then((tabsContents) => {
-        tabsContents.forEach(({tabId, content}) => {
-          const tabHtmlContent: JQuery<any> = $(content);
+      this.getSearchedTabsContents(searchItems.map((searchItem) => searchItem.tabId))
+        .then((tabsContents) => {
+          tabsContents.forEach(({ tabId, content }) => {
+            const tabHtmlContent: JQuery<any> = $(content);
+            const toursList = tabHtmlContent.find('.tour-listing__card');
+            
+            const currentSearchItem = searchItems.find((searchItem) => searchItem.tabId == tabId);
 
-          if (tabHtmlContent.find('.tour-listing__card').length) {
-            response.push({ tabId });
-          } else if (this.canRefresh(tabHtmlContent)) {
-            this.executeRefresh(tabId);
-          }
+            if (currentSearchItem) {
+              // TODO Move to better place for function
+              if (currentSearchItem.filters.dateTillFilter) {
+                toursList.filter((index, tourItem) => {
+                  
+                  const tourStarDate = $(tourItem).find('.tour-header__work-opportunity-stop-row .run-stop')
+                    .first()
+                    .find('.run-stop-details .tour-header__secondary')
+                    .first().text();
+
+                  // TODO Moment js is too big for the project, try something else
+                  // Cannot recognize the date
+                  // TODO Find out and fix
+                  moment(tourStarDate).isBefore(currentSearchItem.filters.dateTillFilter);
+                  return true;
+                });
+              }
+            }
+
+            if (toursList.length) {
+              response.push({ tabId });
+            } else if (this.canRefresh(tabHtmlContent)) {
+              this.executeRefresh(tabId);
+            }
+          });
+
+          resolve(response);
         });
-
-        resolve(response);
-      });
     });
   }
 

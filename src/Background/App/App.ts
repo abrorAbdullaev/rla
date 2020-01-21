@@ -87,9 +87,18 @@ export class App {
 
   startSearch() {
     const searchedTabs = this.getSearchedTabs();
+    const searchItems: Array<{ tabId: number, filters: TabFilters }> = [];
 
-    if (this.getSearchedTabs().length) {
-      this.searchService.search(searchedTabs.map((obj: TabInfo) => obj.id))
+    if (searchedTabs.length) {
+      const searchIds = this.getSearchedTabs().map((obj: TabInfo) => obj.id);
+      searchIds.forEach((searchId: number) => {
+        searchItems.push({
+          tabId: searchId,
+          filters: this.observedTabs[this.getIndexByTabId(searchId)].filters,
+        });
+      });
+
+      this.searchService.search(searchItems)
         .then((response: Array<{ tabId: number }>) => {
           if(response.length) {
             response.forEach(({ tabId }) => {
