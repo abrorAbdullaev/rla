@@ -8,8 +8,8 @@ export class TabsService {
     });
   }
 
-  registerRemoveOnUpdate(fn: Function): void {
-    chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {         
+  registerOnUpdateEvents(fn: Function): void {
+    chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {        
       if( changeInfo.url && !changeInfo.url.includes('https://relay.amazon.com/tours/loadboard')) {
         fn(tabId);
       }

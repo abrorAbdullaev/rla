@@ -16,7 +16,7 @@ export class SearchService {
 
       this.getSearchedTabsContents(tabIds).then((tabsContents) => {
         tabsContents.forEach(({tabId, content}) => {
-          const tabHtmlContent: JQuery<any> = $(content).first();
+          const tabHtmlContent: JQuery<any> = $(content);
 
           if (tabHtmlContent.find('.tour-listing__card').length) {
             response.push({ tabId });
@@ -31,12 +31,22 @@ export class SearchService {
   }
 
   private getSearchedTabsContents(tabIds: number[]): Promise<Array<{ tabId: number, content: any }>> {
-    return Promise.all(
-      tabIds.map((tabId) => ({
-        tabId: tabId,
-        content: chrome.tabs.executeScript(tabId, { 'code': 'document.getElementById("application").innerHTML' })
-      }))
-    );
+    let resultsCount = 0;
+    let response: Array<{ tabId: number, content: any }> = [];
+    
+    return new Promise<Array<{ tabId: number, content: any }>>((resolve) => {
+      tabIds.forEach((tabId) => {
+        chrome.tabs.executeScript(tabId, { 'code': 'document.getElementById("application").innerHTML' }, (resp) => {
+          response.push({ tabId, content: resp[0]});
+          resultsCount++;
+
+          // Iterations finished
+          if(resultsCount === tabIds.length) {
+            resolve(response);
+          }
+        });
+      });
+    });
   }
 
   private canRefresh(htmlContent: JQuery<any>): boolean {

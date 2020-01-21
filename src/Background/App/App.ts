@@ -4,8 +4,6 @@ import { TabInfo, TabStatus } from '../../Shared/Models/TabInfo';
 
 @injectable()
 export class App {
-  private searching: boolean = false;
-
   observedTabs: Array<TabInfo> = [];
   onResultFound: (bgApp: this) => void;
 
@@ -23,7 +21,7 @@ export class App {
       this.removeObservedTab(tabId, true);
     });
 
-    this.tabsService.registerRemoveOnUpdate((tabId: number) => {
+    this.tabsService.registerOnUpdateEvents((tabId: number) => {
       this.removeObservedTab(tabId, true);
     });
   }
@@ -42,9 +40,11 @@ export class App {
   removeObservedTab(id: number, withoutTitleUpdate?: boolean): void {    
     const ind = this.observedTabs.findIndex((obj: TabInfo) => obj.id === id);
 
-    this.observedTabs.splice(ind, 1);
-
-    if(!withoutTitleUpdate) {
+    if (ind >= 0) {
+      this.observedTabs.splice(ind, 1);
+    }
+    
+    if (!withoutTitleUpdate) {
       this.tabsService.changeTabTitle(id, '(Not Observed)');
     }
   }
@@ -57,7 +57,10 @@ export class App {
     this.observedTabs[ind].isFound = false;
 
     this.tabsService.changeTabTitle(id, '(Searching)');
-    this.startSearch();
+
+    if (this.getSearchedTabs().length === 1) {
+      this.startSearch();
+    }
   }
 
   stopTabSearching(id: number, resultsFound?: boolean): void {
@@ -87,7 +90,7 @@ export class App {
               this.tabsService.changeTabTitle(tabId, '( !Found! )');
             });
           }
-        
+
           this.startSearch();
       });
     }
