@@ -22,7 +22,11 @@
       <span class="text-secondary d-block mx-auto">The current tab is not observed!</span>
     </div>
     <div class="row">
-      <button id="addCurrentButton" type="button" class="mt-1 mb-2 btn btn-primary px-4 mx-auto">Add the button to observed list with id: {{ currentTab.id }}</button>
+      <button 
+        id="addCurrentButton" 
+        type="button" 
+        class="mt-1 mb-2 btn btn-primary px-4 mx-auto" 
+        data-tab-id={{ currentTab.id }}>Add the button to observed list with id: {{ currentTab.id }}</button>
     </div>
   {{ /currentNotObserved }}
   <div class="row row-cols-2">

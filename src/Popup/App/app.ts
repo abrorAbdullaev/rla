@@ -32,7 +32,7 @@ export class App {
         this.bg = bg;
         this.currentTab = currentTab;
         
-        this.popupService.renderContent(currentTab, bg);
+        this.popupService.renderContent(this.bg, this.currentTab);
     });
   }
 

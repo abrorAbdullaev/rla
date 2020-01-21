@@ -16,20 +16,20 @@ export class PopupService {
   private wrongPageHtml = require('../Template/wrong.html');
 
   renderContent(
-    currentTab?: chrome.tabs.Tab,
     bg?: Background,
+    currentTab?: chrome.tabs.Tab,
   ): void {
     const mainTemplate = {
       observedTabs: bg ? bg.observedTabs : [],
     } as MainTemplate;
 
-    if(bg && !bg.observedTabs.filter(({ id }) => currentTab && id == currentTab.id).length) {
+    if(bg && currentTab && !bg.observedTabs.filter(({ id }) => id == currentTab.id).length) {
       mainTemplate['currentNotObserved'] = true;
       mainTemplate['currentTab'] = currentTab;
     }
 
     this.render(Mustache.render(this.mainHtml, mainTemplate));
-    this.registerJQueryEvents(mainTemplate, currentTab, bg,);
+    this.registerJQueryEvents(mainTemplate, bg);
   }
 
   renderWrongPage() {
@@ -47,40 +47,39 @@ export class PopupService {
 
   private registerJQueryEvents(
     mainTemplate: MainTemplate,
-    currentTab?: chrome.tabs.Tab,
     bg?: Background,
   ): void {
-    if (bg && currentTab) {
+    if (bg) {
       if(mainTemplate.currentNotObserved) {
-        $('#addCurrentButton').off().on('click', () => {
-          if (bg && currentTab) {
-            bg.addObservedTab(currentTab.id);
-            this.renderContent(currentTab, bg);
+        $('#addCurrentButton').off().on('click', (event: Event) => {
+          if (event.target) {
+            bg.addObservedTab($(event.target).attr('data-tab-id'));
+            this.renderContent(bg);
           }
         });
       }
       
       $('.tab-remove-btn').off().on('click', (event: Event) => {
         if(event.target) {
-          console.log($(event.target).attr('data-tab-id'));
           bg.removeObservedTab($(event.target).attr('data-tab-id'));
-          this.renderContent(currentTab, bg);
+          this.renderContent(bg);
         }
       });
 
       $('.tab-start-btn').off().on('click', (event: Event) => {
         if(event.target) {
           bg.startTabSearching($(event.target).attr('data-tab-id'), () => {
-            this.renderContent(currentTab, bg);    
+            this.renderContent(bg);
           });
-          this.renderContent(currentTab, bg);
+
+          this.renderContent(bg);
         }
       });
 
       $('.tab-stop-btn').off().on('click', (event: Event) => {
         if(event.target) {
           bg.stopTabSearching($(event.target).attr('data-tab-id'));
-          this.renderContent(currentTab, bg);
+          this.renderContent(bg);
         }
       });
 
