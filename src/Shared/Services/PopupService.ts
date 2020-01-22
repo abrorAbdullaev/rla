@@ -22,6 +22,8 @@ interface ActionMapObject {
 export class PopupService {
   private mainHtml = require('./Template/main.html');
   private wrongPageHtml = require('./Template/wrong.html');
+  private authPageHtml = require('./Template/auth.html');
+
   private cachedCurrentTab?: chrome.tabs.Tab;
 
   renderContent(
@@ -29,7 +31,17 @@ export class PopupService {
     currTab?: chrome.tabs.Tab,
   ): void {
     // Internal local cache to be used in case if the tab is removed from observation
+    // Keep it saved even before auth so that after auth it could be used
     const currentTab = this.getCurrentTab(currTab);
+    
+    // Just additional check just in case
+    if (!bg.isAuthenticated()) {
+      this.renderAuthPage(false);
+      this.registerAuthJQueryEvents(bg);
+
+      return;
+    }
+
     const mainTemplate = {
       observedTabs: bg.observedTabs,
       currentNotObserved: false,
@@ -47,6 +59,13 @@ export class PopupService {
 
   renderWrongPage() {
     this.render(Mustache.render(this.wrongPageHtml, {}));
+    this.hideLoader();
+  }
+
+  renderAuthPage(failed: boolean) {
+    this.render(Mustache.render(this.authPageHtml, {
+      failed
+    }));
     this.hideLoader();
   }
 
@@ -135,6 +154,26 @@ export class PopupService {
         });
       }
     });
+  }
+
+  private registerAuthJQueryEvents(bg: BackgroundApp): void {
+      $('#authForm').off().on('submit', (event: Event) => {
+        event.preventDefault();
+        
+        if(event.target) {
+          const form = $(event.target);
+
+          const login = form.find('[name="auth-login"]').val();
+          const password = form.find('[name="auth-password"]').val();
+
+          if (login && password && bg.authenticate(login.toString(), password.toString())) {
+            this.renderContent(bg);
+          } else {
+            this.renderAuthPage(true);
+            this.registerAuthJQueryEvents(bg);
+          }
+        }
+      });
   }
 
   private getCurrentTab(currentTab?: chrome.tabs.Tab ): chrome.tabs.Tab | undefined {

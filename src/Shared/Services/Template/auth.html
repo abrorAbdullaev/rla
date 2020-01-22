@@ -1,0 +1,40 @@
+<!--
+    /**
+     * @var failed: boolean
+     */
+-->
+<div class="container">
+    <div class="row">
+        <h1 class="h2 mt-4 mx-auto text-primary">
+            Welcome To Relay Automation!
+        </h1>
+    </div>
+    <div class="row">
+        <h2 class="h4 mt-2 mx-auto text-secondary">
+            Please Authenticate yourself
+        </h2>
+    </div>
+    <hr />
+    {{#failed}}
+    <div class="row">
+        <div class="alert alert-danger mx-auto" role="alert">
+            <span>Authentication failed!</span>
+        </div>
+    </div>
+    {{/failed}}
+    <div class="row">
+        <form id="authForm" class="mx-auto w-50">
+            <div class="form-group">
+                <label for="auth-login">Login</label>
+                <input class="form-control" name="auth-login" type="text" placeholder="Your Login" required />
+            </div>
+            <div class="form-group">
+                <label form="auth-password">Password</label>
+                <input class="form-control" name="auth-password" type="password" placeholder="Your Password" required />
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary w-100">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>

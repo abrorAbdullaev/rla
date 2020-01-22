@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { injectable } from "tsyringe";
 import { TabFilters } from '../Models';
 
@@ -34,10 +34,7 @@ export class SearchService {
                     .find('.run-stop-details .tour-header__secondary')
                     .first().text();
 
-                  // TODO Moment js is too big for the project, try something else
-                  // Cannot recognize the date
-                  // TODO Find out and fix
-                  moment(tourStarDate).isBefore(currentSearchItem.filters.dateTillFilter);
+                  dayjs(tourStarDate).isBefore(currentSearchItem.filters.dateTillFilter);
                   return true;
                 });
               }
