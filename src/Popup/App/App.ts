@@ -35,7 +35,7 @@ export class App {
 
           // Render content via the reference from background
           // can be also done via current object this.popupService.renderContent(bgpp, currentTab)
-          this.popupService.renderContent(bgApp, currentTab)
+          this.popupService.renderContent(bgApp, currentTab);
           this.popupService.hideLoader();
         })
       } else {

@@ -1,19 +1,28 @@
 import { injectable } from 'tsyringe';
+import dayjs, { Dayjs } from 'dayjs';
+import { AuthService, AuthData } from './Services';
 import { TabsService, SearchService } from '../../Shared/Services';
 import { TabInfo, TabStatus, TabFilters } from '../../Shared/Models/TabInfo';
 
 @injectable()
 export class App {
+  private authData: AuthData;
+
   observedTabs: Array<TabInfo> = [];
   onResultFound: (bgApp: this) => void;
 
   constructor(
-    public tabsService: TabsService,
-    public searchService: SearchService,
+    private tabsService: TabsService,
+    private searchService: SearchService,
+    private authService: AuthService,
   ) {
     this.onResultFound = (bgApp: this) => {
       console.log('background onResultFound has not been overridden', bgApp);
     };
+
+    this.authData = {
+      encryption: '',
+    } as AuthData;
   }
 
   init(): void {
@@ -119,6 +128,35 @@ export class App {
 
   getIndexByTabId(tabId: number): number {
     return this.observedTabs.findIndex((obj: TabInfo) => obj.id === tabId);
+  }
+
+  authenticate(login: string, password: string): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      this.authService.findMatch(login, password).then((response: { isSuccess: boolean, encryption: string }) => {
+        if (response.isSuccess) {
+          this.authData.encryption = response.encryption;
+          this.authData.expiresAt = dayjs().add(1, 'day');
+        }
+
+        resolve(response.isSuccess);
+      });
+    });
+  }
+
+  isAuthenticated(): boolean {
+    const isAuthenticated = !!this.authData.encryption 
+      && !!this.authData.expiresAt 
+      && this.authData.expiresAt.isAfter(dayjs());
+
+    if (!isAuthenticated) {
+      // Flush the data if the authentication expired
+      this.observedTabs = [];
+      this.authData = {
+        encryption: '',
+      } as AuthData;
+    }
+
+    return isAuthenticated;
   }
 
   private getSearchedTabs(): TabInfo[] {
