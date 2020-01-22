@@ -11,8 +11,8 @@
     "persistent": true
   },
   "browser_action": {
+    "default_icon": "./assets/icon-off.png",
     "default_popup": "./assets/html/popup.html"
   },
-  
   "manifest_version": 2
 }

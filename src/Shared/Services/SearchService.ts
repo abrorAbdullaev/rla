@@ -24,7 +24,7 @@ export class SearchService {
             
             const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
 
-            if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter) {
+            if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
               tabHtmlContent = this.applDateTillFilter(tabHtmlContent, currentSearchedTabFilters.dateTillFilter);
             }
 
@@ -67,6 +67,12 @@ export class SearchService {
   private executeRefresh(tabId: number): void {
     chrome.tabs.executeScript(tabId, { 'code': 'document.getElementsByClassName("reload-icon")[0].click();' });
   }
+
+  /**
+   * ============================ 
+   *  FILTERS
+   * ============================
+   */
 
   // TODO Test this out
   private applDateTillFilter(htmlContent: JQuery<any>, dateTilleFilter: string): JQuery<any> {
