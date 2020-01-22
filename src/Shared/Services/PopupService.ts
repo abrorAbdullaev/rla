@@ -34,6 +34,8 @@ export class PopupService {
     // Keep it saved even before auth so that after auth it could be used
     const currentTab = this.getCurrentTab(currTab);
     
+    console.log(bg.isAuthenticated());
+
     // Just additional check just in case
     if (!bg.isAuthenticated()) {
       this.renderAuthPage(false);
@@ -163,14 +165,22 @@ export class PopupService {
         if(event.target) {
           const form = $(event.target);
 
-          const login = form.find('[name="auth-login"]').val();
-          const password = form.find('[name="auth-password"]').val();
+          form.find('[type="submit"]').attr('disabled', 'disabled');
 
-          if (login && password && bg.authenticate(login.toString(), password.toString())) {
-            this.renderContent(bg);
-          } else {
-            this.renderAuthPage(true);
-            this.registerAuthJQueryEvents(bg);
+          const login = form.find('[name="auth-login"]').attr('disabled', 'disabled').val();
+          const password = form.find('[name="auth-password"]').attr('disabled', 'disabled').val();
+
+          if (login && password) {
+            bg.authenticate(login.toString(), password.toString()).then(
+              (isSuccess: boolean) => {
+                if (isSuccess) {
+                  this.renderContent(bg)
+                } else {
+                  this.renderAuthPage(true);
+                  this.registerAuthJQueryEvents(bg);
+                }
+              }
+            );
           }
         }
       });

@@ -25,7 +25,7 @@ export class SearchService {
             const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
 
             if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
-              tabHtmlContent = this.applDateTillFilter(tabHtmlContent, currentSearchedTabFilters.dateTillFilter);
+              tabHtmlContent = this.applyDateTillFilter(tabHtmlContent, currentSearchedTabFilters.dateTillFilter);
             }
 
             if (toursList.length) {
@@ -75,7 +75,7 @@ export class SearchService {
    */
 
   // TODO Test this out
-  private applDateTillFilter(htmlContent: JQuery<any>, dateTilleFilter: string): JQuery<any> {
+  private applyDateTillFilter(htmlContent: JQuery<any>, dateTilleFilter: string): JQuery<any> {
     htmlContent.filter((_: number, tourItem: HTMLElement) => {
       const tourStarDate = $(tourItem).find('.tour-header__work-opportunity-stop-row .run-stop')
         .first()

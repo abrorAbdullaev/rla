@@ -11,7 +11,6 @@ export class TabsService {
   registerOnUpdateEvents(fn: Function): void {
     chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {        
       if( changeInfo.url && !changeInfo.url.includes('https://relay.amazon.com/tours/loadboard')) {
-        chrome.browserAction.setIcon({path: './assets/icon-on.png'});
         fn(tabId);
       }
 

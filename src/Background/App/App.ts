@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { AuthService, AuthData } from './Services';
 import { TabsService, SearchService } from '../../Shared/Services';
 import { TabInfo, TabStatus, TabFilters } from '../../Shared/Models/TabInfo';
@@ -130,19 +130,33 @@ export class App {
     return this.observedTabs.findIndex((obj: TabInfo) => obj.id === tabId);
   }
 
-  authenticate(login: string, password: string): boolean {
-    const authresponse: { success: boolean, encryption: string } = this.authService.findMatch(login, password);
-    
-    if (authresponse.success) {
-      this.authData.encryption = authresponse.encryption;
-      this.authData.expiresAt = dayjs().add(1, 'day');
-    }
+  authenticate(login: string, password: string): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      this.authService.findMatch(login, password).then((response: { isSuccess: boolean, encryption: string }) => {
+        if (response.isSuccess) {
+          this.authData.encryption = response.encryption;
+          this.authData.expiresAt = dayjs().add(1, 'day');
+        }
 
-    return authresponse.success;
+        resolve(response.isSuccess);
+      });
+    });
   }
 
   isAuthenticated(): boolean {
-    return !!this.authData.encryption && !!this.authData.expiresAt && this.authData.expiresAt.isAfter(dayjs());
+    const isAuthenticated = !!this.authData.encryption 
+      && !!this.authData.expiresAt 
+      && this.authData.expiresAt.isAfter(dayjs());
+
+    if (!isAuthenticated) {
+      // Flush the data if the authentication expired
+      this.observedTabs = [];
+      this.authData = {
+        encryption: '',
+      } as AuthData;
+    }
+
+    return isAuthenticated;
   }
 
   private getSearchedTabs(): TabInfo[] {
