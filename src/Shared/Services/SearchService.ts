@@ -19,25 +19,13 @@ export class SearchService {
       this.getSearchedTabsContents(searchItems.map((searchItem) => searchItem.tabId))
         .then((tabsContents) => {
           tabsContents.forEach(({ tabId, content }) => {
-            const tabHtmlContent: JQuery<any> = $(content);
+            let tabHtmlContent: JQuery<any> = $(content);
             const toursList = tabHtmlContent.find('.tour-listing__card');
             
-            const currentSearchItem = searchItems.find((searchItem) => searchItem.tabId == tabId);
+            const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
 
-            if (currentSearchItem) {
-              // TODO Move to better place for function
-              if (currentSearchItem.filters.dateTillFilter) {
-                toursList.filter((index, tourItem) => {
-                  
-                  const tourStarDate = $(tourItem).find('.tour-header__work-opportunity-stop-row .run-stop')
-                    .first()
-                    .find('.run-stop-details .tour-header__secondary')
-                    .first().text();
-
-                  dayjs(tourStarDate).isBefore(currentSearchItem.filters.dateTillFilter);
-                  return true;
-                });
-              }
+            if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter) {
+              tabHtmlContent = this.applDateTillFilter(tabHtmlContent, currentSearchedTabFilters.dateTillFilter);
             }
 
             if (toursList.length) {
@@ -78,5 +66,19 @@ export class SearchService {
 
   private executeRefresh(tabId: number): void {
     chrome.tabs.executeScript(tabId, { 'code': 'document.getElementsByClassName("reload-icon")[0].click();' });
+  }
+
+  // TODO Test this out
+  private applDateTillFilter(htmlContent: JQuery<any>, dateTilleFilter: string): JQuery<any> {
+    htmlContent.filter((_: number, tourItem: HTMLElement) => {
+      const tourStarDate = $(tourItem).find('.tour-header__work-opportunity-stop-row .run-stop')
+        .first()
+        .find('.run-stop-details .tour-header__secondary')
+        .first().text();
+
+      return dayjs(tourStarDate).isBefore(dayjs(dateTilleFilter));
+    });
+
+    return htmlContent;
   }
 }
