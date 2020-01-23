@@ -6,12 +6,16 @@
     "tabs",
     "https://relay.amazon.com/tours/loadboard?"
   ],
+  "icons": {
+    "16": "./assets/icons/16-off.png",
+    "32": "./assets/icons/32-on.png",
+    "128": "./assets/icons/128-on.png"
+  },
   "background": {
     "scripts": ["./assets/js/background.js"],
     "persistent": true
   },
   "browser_action": {
-    "default_icon": "./assets/icon-on.png",
     "default_popup": "./assets/html/popup.html"
   },
   "manifest_version": 2

@@ -9,10 +9,41 @@
    *  isFound:      boolean
    *  filters:      {
    *                   dateTillFilter: string
+   *                   destinationStatesFilter: string[]
    *                }
    */
 -->
-<div class="container my-2">
+<div id="map-container" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="container">
+          <div class="row row-cols-2">
+            <div class="col">
+              <h3>Pick the states</h3>
+            </div>
+            <div class="col text-right">
+              <button class="btn btn-secondary states-clear-btn">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="inner-container mx-auto" style="width: 400px; height: 300px;"></div>
+        <div class="alert alert-success selected-states"></div>
+      </div>
+      <div class="modal-footer">
+        <div class="text-right">
+          <button type="button" class="btn btn-primary mr-2 states-cancel-btn">Cancel</button>
+          <button type="button" class="btn btn-primary states-apply-btn">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" style="display: none"></div>
+
+<div id="settings-container" class="container my-2">
   <div class="row">
     <h1 class="h2 mt-4 mx-auto text-center text-primary">
       Welcome To Relay Automation!
@@ -58,6 +89,26 @@
                 <input name="date-till-filter" type="datetime-local" class="form-control" 
                   value="{{ filters.dateTillFilter }}" data-tab-id={{ id }}/>
                 <small class="form-text text-muted">Insert the date till which you want to search.</small>
+              </div>
+              <hr />
+              <div class="form-group">
+                <label>
+                  Destination states&nbsp;
+                      {{^filters.destinationStatesFilter.length}}<span class="mark mark-warning"></span> (Not given){{/filters.destinationStatesFilter.length}}
+                      {{#filters.destinationStatesFilter.length}}<span class="mark mark-success"></span>{{/filters.destinationStatesFilter.length}}
+                </label>
+                <div class="card w-100">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      {{^filters.destinationStatesFilter.length}}No states selected{{/filters.destinationStatesFilter.length}}
+                      {{#filters.destinationStatesFilter}}
+                        <span>{{.}} </span>
+                      {{/filters.destinationStatesFilter}}
+                    </h5>
+                    <p class="card-text"></p>
+                    <button data-tab-id="{{ id }}" type="button" class="btn btn-primary destination-states-btn">Edit</button>
+                  </div>
+                </div>
               </div>
             </form>
           </div>

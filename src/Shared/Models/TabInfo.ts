@@ -5,7 +5,8 @@ export enum TabStatus {
 }
 
 export interface TabFilters {
-  dateTillFilter: string
+  dateTillFilter: string,
+  destinationStatesFilter: Array<string>,
 }
 
 export interface TabInfo {
