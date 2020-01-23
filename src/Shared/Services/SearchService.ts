@@ -20,12 +20,12 @@ export class SearchService {
         .then((tabsContents) => {
           tabsContents.forEach(({ tabId, content }) => {
             let tabHtmlContent: JQuery<any> = $(content);
-            const toursList = tabHtmlContent.find('.tour-listing__card');
+            let toursList = tabHtmlContent.find('.tour-listing__card');
             
             const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
 
             if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
-              tabHtmlContent = this.applyDateTillFilter(tabHtmlContent, currentSearchedTabFilters.dateTillFilter);
+              toursList = this.applyDateTillFilter(toursList, currentSearchedTabFilters.dateTillFilter);
             }
 
             if (toursList.length) {
@@ -34,6 +34,10 @@ export class SearchService {
               this.executeRefresh(tabId);
             }
           });
+
+          if (response.length) {
+            this.sound.play();
+          }
 
           resolve(response);
         });
@@ -75,16 +79,23 @@ export class SearchService {
    */
 
   // TODO Test this out
-  private applyDateTillFilter(htmlContent: JQuery<any>, dateTilleFilter: string): JQuery<any> {
-    htmlContent.filter((_: number, tourItem: HTMLElement) => {
-      const tourStarDate = $(tourItem).find('.tour-header__work-opportunity-stop-row .run-stop')
-        .first()
-        .find('.run-stop-details .tour-header__secondary')
-        .first().text();
+  private applyDateTillFilter(toursList: JQuery<any>, dateTillFilter: string): JQuery<any> {
+    const currentYear = dayjs().get('year');
+    const allowedStartDate = dayjs(dateTillFilter);
 
-      return dayjs(tourStarDate).isBefore(dayjs(dateTilleFilter));
+    toursList = toursList.filter((_, tourCard: HTMLElement) => {
+      const tourStartDate = $(tourCard)
+        .find('.tour-header__work-opportunity-stop-row .run-stop:first .tour-header__secondary')
+        .text();
+
+      if (!tourStartDate) {
+        return false;
+      }
+
+      const startDate = dayjs(tourStartDate).set('year', currentYear);
+      return startDate.isBefore(allowedStartDate);
     });
 
-    return htmlContent;
+    return toursList;
   }
 }

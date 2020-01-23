@@ -34,8 +34,6 @@ export class PopupService {
     // Keep it saved even before auth so that after auth it could be used
     const currentTab = this.getCurrentTab(currTab);
     
-    console.log(bg.isAuthenticated());
-
     // Just additional check just in case
     if (!bg.isAuthenticated()) {
       this.renderAuthPage(false);
@@ -43,6 +41,7 @@ export class PopupService {
 
       return;
     }
+
 
     const mainTemplate = {
       observedTabs: bg.observedTabs,

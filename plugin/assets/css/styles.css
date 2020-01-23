@@ -12,6 +12,22 @@ body {
   background-image: linear-gradient(to right, var(--gradLeft), var(--gradRight));
 }
 
+.mark {
+  vertical-align: middle;
+  display: inline-block;
+  border-radius: 100%;
+  height: 15px;
+  width: 15px;
+}
+
+.mark-warning {
+  background-color: yellow;
+}
+
+.mark-success {
+  background-color: green;
+}
+
 /** Bootstrap overrides */
 .text-primary {
   color: var(--primaryColor) !important;
@@ -31,18 +47,6 @@ body {
   border-color: var(--primaryColor) !important;
 }
 
-.mark {
-  vertical-align: middle;
-  display: inline-block;
-  border-radius: 100%;
-  height: 15px;
-  width: 15px;
-}
-
-.mark-warning {
-  background-color: yellow;
-}
-
-.mark-success {
-  background-color: green;
+.container {
+  max-width: 600px !important;  
 }
