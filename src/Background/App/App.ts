@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { AuthService, AuthData } from './Services';
 import { TabsService, SearchService } from '../../Shared/Services';
 import { TabInfo, TabStatus, TabFilters } from '../../Shared/Models/TabInfo';
@@ -43,6 +43,7 @@ export class App {
       isFound: false,
       filters: {
         dateTillFilter: '',
+        destinationStatesFilter: [],
       } as TabFilters
     } as TabInfo);
 
