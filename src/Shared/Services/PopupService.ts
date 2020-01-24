@@ -43,7 +43,6 @@ export class PopupService {
       return;
     }
 
-
     const mainTemplate = {
       observedTabs: bg.observedTabs,
       currentNotObserved: false,
@@ -106,6 +105,7 @@ export class PopupService {
         elementSelector: '.tab-start-btn',
         event: 'click',
         action: (tabId: number) => {
+          bg.toggleExpanded(tabId, false);
           bg.startTabSearching(tabId);
         }
       },
@@ -136,6 +136,14 @@ export class PopupService {
           filters.dateTillFilter = val ? val.toString() : '';
 
           bg.updateFilters(tabId, filters);
+        }
+      },
+      {
+        condition: true,
+        elementSelector: '.tab-collapse-btn',
+        event: 'click',
+        action: (tabId: number) => {
+          bg.toggleExpanded(tabId);
         }
       },
       {

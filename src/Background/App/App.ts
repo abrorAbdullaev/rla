@@ -2,7 +2,7 @@ import { injectable } from 'tsyringe';
 import dayjs from 'dayjs';
 import { AuthService, AuthData } from './Services';
 import { TabsService, SearchService } from '../../Shared/Services';
-import { TabInfo, TabStatus, TabFilters } from '../../Shared/Models/TabInfo';
+import { TabInfo, TabStatus, TabFilters, defaultTabInfo } from '../../Shared/Models/TabInfo';
 
 @injectable()
 export class App {
@@ -38,14 +38,8 @@ export class App {
   addObservedTab(tabId: number): void {
     this.observedTabs.push({
       id: tabId,
-      status: TabStatus.idle,
-      searchStatus: false,
-      isFound: false,
-      filters: {
-        dateTillFilter: '',
-        destinationStatesFilter: [],
-      } as TabFilters
-    } as TabInfo);
+      ...defaultTabInfo
+    });
 
     this.tabsService.changeTabTitle(tabId);
   }
@@ -90,9 +84,19 @@ export class App {
     this.tabsService.changeTabTitle(tabId);
   }
 
-  updateFilters(tabId: number, filters: TabFilters) {
+  updateFilters(tabId: number, filters: TabFilters) : void {
     const ind = this.getIndexByTabId(tabId);
     this.observedTabs[ind].filters = filters;
+  }
+
+  toggleExpanded(tabId: number, toggle?: boolean): void {
+    const tab = this.observedTabs[this.getIndexByTabId(tabId)];
+
+    if (typeof toggle !== 'undefined') {
+      tab.expanded = toggle;
+    } else {
+      tab.expanded = !tab.expanded;
+    }
   }
 
   startSearch() {
