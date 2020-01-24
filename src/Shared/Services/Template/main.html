@@ -85,10 +85,10 @@
               <form id="filtersForm">
                 <hr />
                 <div class="form-group">
-                <label for="date-till-filter">Time Filter 
-                  {{^filters.dateTillFilter}}<span class="mark mark-warning"></span> (Not given){{/filters.dateTillFilter}}
-                  {{#filters.dateTillFilter}}<span class="mark mark-success"></span>{{/filters.dateTillFilter}}
-                </label>
+                  <label for="date-till-filter">Time Filter 
+                    {{^filters.dateTillFilter}}<span class="mark mark-warning"></span> (Not given){{/filters.dateTillFilter}}
+                    {{#filters.dateTillFilter}}<span class="mark mark-success"></span>{{/filters.dateTillFilter}}
+                  </label>
                   <input name="date-till-filter" type="datetime-local" class="form-control" 
                     value="{{ filters.dateTillFilter }}" data-tab-id={{ id }}/>
                   <small class="form-text text-muted">Insert the date till which you want to search.</small>
@@ -111,6 +111,25 @@
                       <p class="card-text"></p>
                       <button data-tab-id="{{ id }}" type="button" class="btn btn-primary destination-states-btn">Edit</button>
                       <button data-tab-id="{{ id }}" type="button" class="btn btn-secondary ml-1 destination-states-clean-btn">Clean</button>
+                    </div>
+                  </div>
+                </div>
+                <hr />
+                <div class="form-group">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="card-title">
+                        Auto Book
+                      </div>
+                      <div class="card-text">
+                        <div class="custom-control custom-switch">
+                          <input data-tab-id="{{ id }}" type="checkbox" class="custom-control-input auto-book-checkbox" name="auto-book" {{#filters.autoBook}}checked="checked"{{/filters.autoBook}}>
+                          <label data-tab-id="{{ id }}" class="custom-control-label auto-book-checkbox" for="auto-book">
+                            {{#filters.autoBook}}Enabled{{/filters.autoBook}}
+                            {{^filters.autoBook}}Disabled{{/filters.autoBook}}
+                          </label>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

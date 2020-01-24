@@ -7,6 +7,7 @@ export enum TabStatus {
 export interface TabFilters {
   dateTillFilter: string,
   destinationStatesFilter: Array<string>,
+  autoBook: boolean,
 }
 
 export interface TabInfo {
@@ -26,5 +27,6 @@ export const defaultTabInfo: Omit<TabInfo, 'id'> = {
   filters: {
     dateTillFilter: '',
     destinationStatesFilter: [],
+    autoBook: false,
   } as TabFilters
 }

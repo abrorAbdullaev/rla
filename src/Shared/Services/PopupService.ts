@@ -149,6 +149,21 @@ export class PopupService {
       },
       {
         condition: true,
+        elementSelector: '.auto-book-checkbox',
+        event: 'click',
+        action: (tabId: number) => {
+          const filters: TabFilters = {
+            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
+          };
+          
+          bg.updateFilters(tabId, {
+            ...filters,
+            autoBook: !filters.autoBook,
+          } as TabFilters);
+        }
+      },
+      {
+        condition: true,
         elementSelector: '.destination-states-clean-btn',
         event: 'click',
         action: (tabId: number) => {
