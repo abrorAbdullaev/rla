@@ -22,19 +22,21 @@ export class SearchService {
           tabsContents.forEach(({ tabId, content }) => {
             let tabHtmlContent: JQuery<any> = $(content);
             let toursList = tabHtmlContent.find('.tour-listing__card');
-            
-            const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
-
-            if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
-              toursList = this.applyDateTillFilter(toursList, currentSearchedTabFilters.dateTillFilter);
-            }
-
-            if (currentSearchedTabFilters && currentSearchedTabFilters.destinationStatesFilter.length) {
-              toursList = this.applyDestinationStatesFilter(toursList, currentSearchedTabFilters.destinationStatesFilter);
-            }
-
+        
             if (toursList.length) {
-              response.push({ tabId });
+              const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
+
+              if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
+                toursList = this.applyDateTillFilter(toursList, currentSearchedTabFilters.dateTillFilter);
+              }
+  
+              if (currentSearchedTabFilters && currentSearchedTabFilters.destinationStatesFilter.length) {
+                toursList = this.applyDestinationStatesFilter(toursList, currentSearchedTabFilters.destinationStatesFilter);
+              }
+
+              if (toursList.length) {
+                response.push({ tabId });
+              }
             } else if (this.canRefresh(tabHtmlContent)) {
               this.executeRefresh(tabId);
             }
@@ -106,14 +108,16 @@ export class SearchService {
   // TODO Test it out
   private applyDestinationStatesFilter(toursList: JQuery<any>, destinationStatesFilter: Array<string>): JQuery<any> {
     toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
-      const tourDestinationState: string = $(tourCard).find('todoStateSelector').text();
-      
-      const destinationState = 
-        tourDestinationState.length === 2
-          ? tourDestinationState
-          : states.find((state) => state.name == tourDestinationState);
+      const tourDestinationInfo: string = $(tourCard)
+      .find('.tour-header__work-opportunity-stop-row .run-stop:last .city')
+      .text();
 
-      return destinationStatesFilter.findIndex((statCode) => statCode == destinationState) >= 0;
+      const destinationState = states.find((state) => {
+        const matchPattern = new RegExp('\\s' + state.name.toLowerCase() + '\\s|\\s' + state.abbreviation.toLowerCase() + '\\s');
+        return tourDestinationInfo.toLowerCase().match(matchPattern);
+      });
+      
+      return !!(destinationState && destinationStatesFilter.includes(destinationState.abbreviation));
     });
 
     return toursList;
