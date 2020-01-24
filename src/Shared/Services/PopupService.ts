@@ -1,7 +1,7 @@
 import { injectable } from "tsyringe";
 import * as Mustache from 'mustache';
 import $ from 'jquery';
-import { MainTemplate } from "../Models";
+import { MainTemplate, TabFilters } from "../Models";
 import { App as BackgroundApp } from '../../Background/App/App';
 
 declare var require: {
@@ -144,6 +144,19 @@ export class PopupService {
         event: 'click',
         action: (tabId: number) => {
           bg.toggleExpanded(tabId);
+        }
+      },
+      {
+        condition: true,
+        elementSelector: '.destination-states-clean-btn',
+        event: 'click',
+        action: (tabId: number) => {
+          const filters = bg.observedTabs[bg.getIndexByTabId(tabId)].filters;
+          
+          bg.updateFilters(tabId, {
+            ...filters,
+            destinationStatesFilter: [],
+          } as TabFilters);
         }
       },
       {

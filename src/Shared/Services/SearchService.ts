@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import dayjs from 'dayjs';
+import states from 'states-us';
 import { injectable } from "tsyringe";
 import { TabFilters } from '../Models';
 
@@ -21,15 +22,21 @@ export class SearchService {
           tabsContents.forEach(({ tabId, content }) => {
             let tabHtmlContent: JQuery<any> = $(content);
             let toursList = tabHtmlContent.find('.tour-listing__card');
-            
-            const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
-
-            if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
-              toursList = this.applyDateTillFilter(toursList, currentSearchedTabFilters.dateTillFilter);
-            }
-
+        
             if (toursList.length) {
-              response.push({ tabId });
+              const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
+
+              if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
+                toursList = this.applyDateTillFilter(toursList, currentSearchedTabFilters.dateTillFilter);
+              }
+  
+              if (currentSearchedTabFilters && currentSearchedTabFilters.destinationStatesFilter.length) {
+                toursList = this.applyDestinationStatesFilter(toursList, currentSearchedTabFilters.destinationStatesFilter);
+              }
+
+              if (toursList.length) {
+                response.push({ tabId });
+              }
             } else if (this.canRefresh(tabHtmlContent)) {
               this.executeRefresh(tabId);
             }
@@ -78,12 +85,11 @@ export class SearchService {
    * ============================
    */
 
-  // TODO Test this out
   private applyDateTillFilter(toursList: JQuery<any>, dateTillFilter: string): JQuery<any> {
     const currentYear = dayjs().get('year');
     const allowedStartDate = dayjs(dateTillFilter);
 
-    toursList = toursList.filter((_, tourCard: HTMLElement) => {
+    toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
       const tourStartDate = $(tourCard)
         .find('.tour-header__work-opportunity-stop-row .run-stop:first .tour-header__secondary')
         .text();
@@ -94,6 +100,24 @@ export class SearchService {
 
       const startDate = dayjs(tourStartDate).set('year', currentYear);
       return startDate.isBefore(allowedStartDate);
+    });
+
+    return toursList;
+  }
+
+  // TODO Test it out
+  private applyDestinationStatesFilter(toursList: JQuery<any>, destinationStatesFilter: Array<string>): JQuery<any> {
+    toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
+      const tourDestinationInfo: string = $(tourCard)
+      .find('.tour-header__work-opportunity-stop-row .run-stop:last .city')
+      .text();
+
+      const destinationState = states.find((state) => {
+        const matchPattern = new RegExp('\\s' + state.name.toLowerCase() + '\\s|\\s' + state.abbreviation.toLowerCase() + '\\s');
+        return tourDestinationInfo.toLowerCase().match(matchPattern);
+      });
+      
+      return !!(destinationState && destinationStatesFilter.includes(destinationState.abbreviation));
     });
 
     return toursList;
