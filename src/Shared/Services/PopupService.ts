@@ -170,7 +170,7 @@ export class PopupService {
           const modalBackdrop: JQuery<HTMLElement> = $('.modal-backdrop');
           const selectedStatesList: JQuery<HTMLElement> = $('.selected-states');
 
-          let states: Array<string> = filters.destinationStatesFilter;
+          let states: Array<string> = [...filters.destinationStatesFilter];
         
           $('#settings-container').addClass('d-none')
           modalBackdrop.addClass('d-block');
