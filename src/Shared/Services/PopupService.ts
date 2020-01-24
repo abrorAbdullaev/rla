@@ -130,11 +130,12 @@ export class PopupService {
         elementSelector: '[name="date-till-filter"]',
         event: 'change',
         action: (tabId: number, eventTarget: JQuery<EventTarget>) => {
-          const filters = bg.observedTabs[bg.getIndexByTabId(tabId)].filters;
           const val = eventTarget.val();
+          const filters: TabFilters = {
+            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
+          };
 
           filters.dateTillFilter = val ? val.toString() : '';
-
           bg.updateFilters(tabId, filters);
         }
       },
@@ -151,7 +152,9 @@ export class PopupService {
         elementSelector: '.destination-states-clean-btn',
         event: 'click',
         action: (tabId: number) => {
-          const filters = bg.observedTabs[bg.getIndexByTabId(tabId)].filters;
+          const filters: TabFilters = {
+            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
+          };
           
           bg.updateFilters(tabId, {
             ...filters,
@@ -164,7 +167,9 @@ export class PopupService {
         elementSelector: '.destination-states-btn',
         event: 'click',
         action: (tabId: number) => {
-          const filters = bg.observedTabs[bg.getIndexByTabId(tabId)].filters;
+          const filters = {
+            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
+          };
 
           const mapContainer: JQuery<HTMLElement> = jQuery('#map-container');
           const modalBackdrop: JQuery<HTMLElement> = $('.modal-backdrop');
