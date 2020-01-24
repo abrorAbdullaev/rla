@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import dayjs from 'dayjs';
+import states from 'states-us';
 import { injectable } from "tsyringe";
 import { TabFilters } from '../Models';
 
@@ -26,6 +27,10 @@ export class SearchService {
 
             if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
               toursList = this.applyDateTillFilter(toursList, currentSearchedTabFilters.dateTillFilter);
+            }
+
+            if (currentSearchedTabFilters && currentSearchedTabFilters.destinationStatesFilter.length) {
+              toursList = this.applyDestinationStatesFilter(toursList, currentSearchedTabFilters.destinationStatesFilter);
             }
 
             if (toursList.length) {
@@ -78,12 +83,11 @@ export class SearchService {
    * ============================
    */
 
-  // TODO Test this out
   private applyDateTillFilter(toursList: JQuery<any>, dateTillFilter: string): JQuery<any> {
     const currentYear = dayjs().get('year');
     const allowedStartDate = dayjs(dateTillFilter);
 
-    toursList = toursList.filter((_, tourCard: HTMLElement) => {
+    toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
       const tourStartDate = $(tourCard)
         .find('.tour-header__work-opportunity-stop-row .run-stop:first .tour-header__secondary')
         .text();
@@ -94,6 +98,22 @@ export class SearchService {
 
       const startDate = dayjs(tourStartDate).set('year', currentYear);
       return startDate.isBefore(allowedStartDate);
+    });
+
+    return toursList;
+  }
+
+  // TODO Test it out
+  private applyDestinationStatesFilter(toursList: JQuery<any>, destinationStatesFilter: Array<string>): JQuery<any> {
+    toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
+      const tourDestinationState: string = $(tourCard).find('todoStateSelector').text();
+      
+      const destinationState = 
+        tourDestinationState.length === 2
+          ? tourDestinationState
+          : states.find((state) => state.name == tourDestinationState);
+
+      return destinationStatesFilter.findIndex((statCode) => statCode == destinationState) >= 0;
     });
 
     return toursList;
