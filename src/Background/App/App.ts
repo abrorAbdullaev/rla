@@ -2,7 +2,7 @@ import { injectable } from 'tsyringe';
 import dayjs from 'dayjs';
 import { AuthService, AuthData } from './Services';
 import { TabsService, SearchService } from '../../Shared/Services';
-import { TabInfo, TabStatus, TabFilters, defaultTabInfo } from '../../Shared/Models/TabInfo';
+import { TabInfo, TabStatus, TabFilters, defaultTabInfo, PrintInfo } from '../../Shared/Models/TabInfo';
 import { BookingService } from '../../Shared/Services/BookingService';
 
 @injectable()
@@ -91,6 +91,11 @@ export class App {
     this.observedTabs[ind].filters = filters;
   }
 
+  updatePrintInfo(tabId: number, printInfo: PrintInfo) {
+    const ind = this.getIndexByTabId(tabId);
+    this.observedTabs[ind].printInfo = printInfo;
+  }
+
   toggleExpanded(tabId: number, toggle?: boolean): void {
     const tab = this.observedTabs[this.getIndexByTabId(tabId)];
 
@@ -124,12 +129,20 @@ export class App {
               // Auto book
               if (autoBook) {
                 const loadId = loadCardItem.find('.tour-header').attr('id');
+                this.tabsService.changeTabTitle(tabId, '( Booking! )');
 
                 if (loadId) {
                   this.bookingService.bookLoad(tabId, loadId).then((response: boolean) => {
-                    response
-                     ? console.log('Booking Success')
-                     : console.log('Booking Failure');
+                    if (response) {
+                      this.tabsService.changeTabTitle(tabId, '( !Booked! )');
+                      this.updatePrintInfo(tabId, {
+                        loadId,
+                        loadLength: 10.00,
+                        loadHtml: loadCardItem
+                      } as PrintInfo);
+                    } else {
+                      this.tabsService.changeTabTitle(tabId, '( !Could not book! )');
+                    }
                   });
                 }
               } else {

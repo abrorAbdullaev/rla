@@ -10,6 +10,12 @@ export interface TabFilters {
   autoBook: boolean,
 }
 
+export interface PrintInfo {
+  loadId: string,
+  loadLength: number,
+  loadHtml?: JQuery<HTMLElement>
+}
+
 export interface TabInfo {
   id: number,
   status: TabStatus,
@@ -17,6 +23,7 @@ export interface TabInfo {
   isFound: boolean,
   expanded: boolean,
   filters: TabFilters,
+  printInfo: PrintInfo,
 }
 
 export const defaultTabInfo: Omit<TabInfo, 'id'> = {
@@ -28,5 +35,9 @@ export const defaultTabInfo: Omit<TabInfo, 'id'> = {
     dateTillFilter: '',
     destinationStatesFilter: [],
     autoBook: false,
-  } as TabFilters
+  } as TabFilters,
+  printInfo: {
+    loadId: '',
+    loadLength: 0,
+  }
 }

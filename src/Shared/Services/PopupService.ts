@@ -1,8 +1,9 @@
 import { injectable } from "tsyringe";
 import * as Mustache from 'mustache';
 import $ from 'jquery';
-import { MainTemplate, TabFilters } from "../Models";
+import { MainTemplate, TabFilters, PrintInfo, TabInfo } from "../Models";
 import { App as BackgroundApp } from '../../Background/App/App';
+import dayjs from "dayjs";
 
 declare var require: {
   (path: string): any;
@@ -123,6 +124,18 @@ export class PopupService {
         event: 'click',
         action: (tabId: number) => {
           bg.activateTab(tabId);
+        }
+      },
+      {
+        condition: true,
+        elementSelector: '.tab-print-btn',
+        event: 'click',
+        action: (tabId: number) => {
+          const ind: number = bg.getIndexByTabId(tabId);
+          const tabInfo: TabInfo = bg.observedTabs[ind];
+
+          const doc = this.getPrintableObject(tabInfo);
+          doc.save(dayjs().format('DD-MM-YYYY|HH:mm').toString() + '.pdf');
         }
       },
       {
@@ -280,6 +293,87 @@ export class PopupService {
           }
         }
       });
+  }
+
+  private getPrintableObject(tabInfo: TabInfo): any {
+    // Comes from outside source
+    // TODO Make types
+    // @ts-ignore
+    const doc = new jsPDF();
+
+    const rowHeight:  number = 10;
+    const leftOffset: number = 15;
+
+    let top: number = 15;
+
+    const configs = {
+      'width': 500,
+      'elementHandlers': {
+        '#editor': function (element: any, renderer: any) {
+            return true;
+        }
+      }
+    }
+  
+    doc.fromHTML("<h1>Relay Auto Booked Load Info</h1>", 65, top, configs);
+    top += 2 * rowHeight;
+
+    doc.fromHTML("<h2>Applied Filters</h2>", leftOffset, top, configs);
+    top += rowHeight;
+
+    // TODO Move to array
+    doc.fromHTML("<span><strong>Date Till Filter:</strong></span>", leftOffset, top, configs);
+    doc.fromHTML("<span>" + tabInfo.filters.dateTillFilter + "</span>", leftOffset + 60, top, configs);
+    top += 5;
+    doc.line(leftOffset, top, leftOffset + 100, top);
+    top += 3;
+
+    doc.fromHTML("<span><strong>Destination States Filter:</strong></span>", leftOffset, top, configs);
+    doc.fromHTML("<span>" + tabInfo.filters.destinationStatesFilter.join(', ') + "</span>", leftOffset + 60, top, configs);
+    top += 5;
+    doc.line(leftOffset, top, leftOffset + 100, top);
+    top += 3;
+
+    doc.fromHTML("<span><strong>Auto Booking:</strong></span>", leftOffset, top, configs);
+    doc.fromHTML("<span>" + tabInfo.filters.autoBook + "</span>", leftOffset + 60, top, configs);
+    top += 5;
+    doc.line(leftOffset, top, leftOffset + 100, top);
+    top += 3;
+
+    if (tabInfo.printInfo.loadHtml) {
+      const loadHtml = tabInfo.printInfo.loadHtml;
+
+      top += rowHeight;
+      doc.fromHTML("<h2>Booked Load</h2>", leftOffset, top, configs);
+      top += rowHeight;
+
+      doc.fromHTML("<span><strong>Price Information</strong></span>", leftOffset, top, configs);
+      top += 5
+      doc.fromHTML(loadHtml.find('.tour-header__loadboard-payout--desktop').html(), leftOffset, top, configs);
+
+      top += 10
+      doc.fromHTML("<span><strong>Origin Information</strong></span>", leftOffset, top, configs);
+      doc.fromHTML("<span><strong>Destination Information</strong></span>", leftOffset + 70, top, configs);
+      
+      top += 5
+      doc.fromHTML(loadHtml.find('.run-stop').first().html(), 
+        leftOffset, top, configs);
+      doc.fromHTML(loadHtml.find('.run-stop').last().html(), 
+      leftOffset + 70, top, configs);
+
+      top += 5 + rowHeight;
+      doc.fromHTML("<span><strong>Distance Information</strong></span>", leftOffset, top, configs);
+      top += 5;
+      doc.fromHTML(loadHtml.find('.tour-header__distance-trailer-row').html(), leftOffset, top, configs);
+
+
+      top += 2 * rowHeight;
+      doc.fromHTML("<h2>Raw Data</h2>", leftOffset, top, configs);
+      top += rowHeight;
+      doc.fromHTML(loadHtml.html(), leftOffset, top, configs);
+    }
+
+    return doc;
   }
 
   private getCurrentTab(currentTab?: chrome.tabs.Tab ): chrome.tabs.Tab | undefined {

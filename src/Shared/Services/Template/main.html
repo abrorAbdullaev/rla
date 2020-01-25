@@ -11,6 +11,10 @@
    *                   dateTillFilter: string
    *                   destinationStatesFilter: string[]
    *                }
+   *  printInfo:    {
+   *                   loadId: string
+   *                   loadLength: number
+   *                }
    */
 -->
 <div id="map-container" class="modal fade">
@@ -81,6 +85,9 @@
             {{#expanded}}Collapse{{/expanded}}
           </button>
           <div class="{{^expanded}}d-none{{/expanded}}">
+            {{#printInfo.loadId}}
+              <button class="btn btn-primary w-100 tab-print-btn mt-1" data-tab-id={{ id }}>Print</button>
+            {{/printInfo.loadId}}
             <div class="filters mt-1">
               <form id="filtersForm">
                 <hr />

@@ -4,7 +4,6 @@ import { injectable } from "tsyringe";
 export class BookingService{
   bookLoad(tabId: number, loadId: string): Promise<boolean> {
     return new Promise((resolve) => {
-      console.log("document.getElementById('" + loadId +"');");
       chrome.tabs.executeScript(tabId, { 
         code: "document.getElementById('" + loadId +"')" +
           ".getElementsByClassName('tour-header__accept-button--loadboard')[0]" +

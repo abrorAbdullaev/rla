@@ -41,7 +41,9 @@ export class SearchService {
                   autoBook: !!currentSearchedTabFilters && !!currentSearchedTabFilters.autoBook,
                 });
               }
-            } else if (this.canRefresh(tabHtmlContent)) {
+            }
+            
+            if (!toursList.length && this.canRefresh(tabHtmlContent)) {
               this.executeRefresh(tabId);
             }
           });
