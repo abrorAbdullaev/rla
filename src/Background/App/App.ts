@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { AuthService, AuthData } from './Services';
 import { TabsService, SearchService } from '../../Shared/Services';
 import { TabInfo, TabStatus, TabFilters, defaultTabInfo } from '../../Shared/Models/TabInfo';
+import { BookingService } from '../../Shared/Services/BookingService';
 
 @injectable()
 export class App {
@@ -15,6 +16,7 @@ export class App {
     private tabsService: TabsService,
     private searchService: SearchService,
     private authService: AuthService,
+    private bookingService: BookingService,
   ) {
     this.onResultFound = (bgApp: this) => {
       console.log('background onResultFound has not been overridden', bgApp);
@@ -104,7 +106,8 @@ export class App {
     const searchItems: Array<{ tabId: number, filters: TabFilters }> = [];
 
     if (searchedTabs.length) {
-      const searchIds = this.getSearchedTabs().map((obj: TabInfo) => obj.id);
+      const searchIds = searchedTabs.map((obj: TabInfo) => obj.id);
+      
       searchIds.forEach((searchId: number) => {
         searchItems.push({
           tabId: searchId,
@@ -113,12 +116,27 @@ export class App {
       });
 
       this.searchService.search(searchItems)
-        .then((response: Array<{ tabId: number }>) => {
+        .then((response: Array<{ tabId: number, loadCardItem: JQuery<HTMLElement>, autoBook: boolean }>) => {
           if(response.length) {
-            response.forEach(({ tabId }) => {
+            response.forEach(({ tabId, loadCardItem, autoBook }) => {
               this.stopTabSearching(tabId, true);
+
+              // Auto book
+              if (autoBook) {
+                const loadId = loadCardItem.find('.tour-header').attr('id');
+
+                if (loadId) {
+                  this.bookingService.bookLoad(tabId, loadId).then((response: boolean) => {
+                    response
+                     ? console.log('Booking Success')
+                     : console.log('Booking Failure');
+                  });
+                }
+              } else {
+                this.tabsService.changeTabTitle(tabId, '( !Found! )');
+              }
+
               this.onResultFound(this);
-              this.tabsService.changeTabTitle(tabId, '( !Found! )');
             });
           }
 

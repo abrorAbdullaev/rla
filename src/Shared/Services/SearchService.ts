@@ -13,9 +13,9 @@ export class SearchService {
     this.sound.load();
   }
 
-  search(searchItems: Array<{ tabId: number, filters: TabFilters }>): Promise<Array<{ tabId: number }>> {
+  search(searchItems: Array<{ tabId: number, filters: TabFilters }>): Promise<Array<{ tabId: number, loadCardItem: JQuery<HTMLElement>, autoBook: boolean }>> {
     return new Promise((resolve) => {
-      let response = [] as Array<{ tabId: number }>;
+      let response = [] as Array<{ tabId: number, loadCardItem: JQuery<HTMLElement>, autoBook: boolean }>;
 
       this.getSearchedTabsContents(searchItems.map((searchItem) => searchItem.tabId))
         .then((tabsContents) => {
@@ -35,7 +35,11 @@ export class SearchService {
               }
 
               if (toursList.length) {
-                response.push({ tabId });
+                response.push({ 
+                  tabId,
+                  loadCardItem: toursList.first(),
+                  autoBook: !!currentSearchedTabFilters && !!currentSearchedTabFilters.autoBook,
+                });
               }
             } else if (this.canRefresh(tabHtmlContent)) {
               this.executeRefresh(tabId);
@@ -105,7 +109,6 @@ export class SearchService {
     return toursList;
   }
 
-  // TODO Test it out
   private applyDestinationStatesFilter(toursList: JQuery<any>, destinationStatesFilter: Array<string>): JQuery<any> {
     toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
       const tourDestinationInfo: string = $(tourCard)
