@@ -366,7 +366,6 @@ export class PopupService {
       top += 5;
       doc.fromHTML(loadHtml.find('.tour-header__distance-trailer-row').html(), leftOffset, top, configs);
 
-
       top += 2 * rowHeight;
       doc.fromHTML("<h2>Raw Data</h2>", leftOffset, top, configs);
       top += rowHeight;
