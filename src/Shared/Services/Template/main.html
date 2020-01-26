@@ -102,6 +102,14 @@
                 </div>
                 <hr />
                 <div class="form-group">
+                  <label>Stops Count Filter
+                    {{#filters.stopsCount}}<span class="mark mark-success"></span> <span>({{.}})</span>{{/filters.stopsCount}}
+                  </label>
+                  <input data-tab-id={{ id }} name="stops-count-filter" class="form-control" type="number" value={{filters.stopsCount}} min=1 max=20 />
+                  <small class="form-text text-muted">Insert the max number of stops inclusively.</small>
+                </div>
+                <hr />
+                <div class="form-group">
                   <label>
                     Destination states&nbsp;
                         {{^filters.destinationStatesFilter.length}}<span class="mark mark-warning"></span> (Not given){{/filters.destinationStatesFilter.length}}
@@ -125,9 +133,9 @@
                 <div class="form-group">
                   <div class="card">
                     <div class="card-body">
-                      <div class="card-title">
+                      <h5 class="card-title">
                         Auto Book
-                      </div>
+                      </h5>
                       <div class="card-text">
                         <div class="custom-control custom-switch">
                           <input data-tab-id="{{ id }}" type="checkbox" class="custom-control-input auto-book-checkbox" name="auto-book" {{#filters.autoBook}}checked="checked"{{/filters.autoBook}}>

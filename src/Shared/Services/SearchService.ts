@@ -20,7 +20,7 @@ export class SearchService {
       this.getSearchedTabsContents(searchItems.map((searchItem) => searchItem.tabId))
         .then((tabsContents) => {
           tabsContents.forEach(({ tabId, content }) => {
-            let tabHtmlContent: JQuery<any> = $(content);
+            let tabHtmlContent: JQuery<HTMLElement> = $(content);
             let toursList = tabHtmlContent.find('.tour-listing__card');
         
             if (toursList.length) {
@@ -32,6 +32,10 @@ export class SearchService {
   
               if (currentSearchedTabFilters && currentSearchedTabFilters.destinationStatesFilter.length) {
                 toursList = this.applyDestinationStatesFilter(toursList, currentSearchedTabFilters.destinationStatesFilter);
+              }
+
+              if (currentSearchedTabFilters && currentSearchedTabFilters.stopsCount > 0) {
+                toursList = this.applyStopsCountFilter(toursList, currentSearchedTabFilters.stopsCount);
               }
 
               if (toursList.length) {
@@ -111,7 +115,7 @@ export class SearchService {
     return toursList;
   }
 
-  private applyDestinationStatesFilter(toursList: JQuery<any>, destinationStatesFilter: Array<string>): JQuery<any> {
+  private applyDestinationStatesFilter(toursList: JQuery<HTMLElement>, destinationStatesFilter: Array<string>): JQuery<HTMLElement> {
     toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
       const tourDestinationInfo: string = $(tourCard)
       .find('.tour-header__work-opportunity-stop-row .run-stop:last .city')
@@ -125,6 +129,16 @@ export class SearchService {
       return !!(destinationState && destinationStatesFilter.includes(destinationState.abbreviation));
     });
 
+    return toursList;
+  }
+
+  private applyStopsCountFilter(toursList: JQuery<HTMLElement>, maxStopsCount: number): JQuery<HTMLElement> {
+    toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
+      const stopsCount: number = parseInt($(tourCard).find('.run-stop:last .tour-card__stop-number-circle').text(), 10);
+
+      return !isNaN(stopsCount) && stopsCount <= maxStopsCount;
+    });
+    
     return toursList;
   }
 }

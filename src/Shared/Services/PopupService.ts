@@ -154,6 +154,20 @@ export class PopupService {
       },
       {
         condition: true,
+        elementSelector: '[name="stops-count-filter"]',
+        event: 'change',
+        action: (tabId: number, eventTarget: JQuery<EventTarget>) => {
+          const val = eventTarget.val();
+          const filters: TabFilters = {
+            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
+          }
+
+          filters.stopsCount = val ? parseInt(val.toString(), 10) : 4;
+          bg.updateFilters(tabId, filters);
+        }
+      },
+      {
+        condition: true,
         elementSelector: '.tab-collapse-btn',
         event: 'click',
         action: (tabId: number) => {

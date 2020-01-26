@@ -8,6 +8,7 @@ export interface TabFilters {
   dateTillFilter: string,
   destinationStatesFilter: Array<string>,
   autoBook: boolean,
+  stopsCount: number
 }
 
 export interface PrintInfo {
@@ -35,6 +36,7 @@ export const defaultTabInfo: Omit<TabInfo, 'id'> = {
     dateTillFilter: '',
     destinationStatesFilter: [],
     autoBook: false,
+    stopsCount: 4,
   } as TabFilters,
   printInfo: {
     loadId: '',
