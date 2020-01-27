@@ -17,10 +17,10 @@ export class BookingService{
           return;
         }
 
-        // chrome.tabs.executeScript(tabId, {
-        //   code: "document.getElementsByClassName('confirmation-body')[0]" +
-        //   ".getElementsByClassName('confirmation-body__footer__confirm-button')[0].click();"
-        // });
+        chrome.tabs.executeScript(tabId, {
+          code: "document.getElementsByClassName('confirmation-body')[0]" +
+          ".getElementsByClassName('confirmation-body__footer__confirm-button')[0].click();"
+        });
 
         resolve(true);
 
