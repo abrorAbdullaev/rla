@@ -86,7 +86,7 @@ export class SearchService {
   }
 
   private executeRefresh(tabId: number): void {
-    chrome.tabs.executeScript(tabId, { 'code': 'document.getElementsByClassName("reload-icon")[0].click();' });
+    chrome.tabs.executeScript(tabId, { 'code': 'document.getElementsByClassName("loadboard-reload__refresh-icon--reload-icon")[0].click();' });
   }
 
   /**
