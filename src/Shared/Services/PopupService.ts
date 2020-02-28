@@ -44,6 +44,8 @@ export class PopupService {
       return;
     }
 
+    console.log(bg.observedTabs);
+
     const mainTemplate = {
       observedTabs: bg.observedTabs,
       currentNotObserved: false,
@@ -163,6 +165,20 @@ export class PopupService {
           }
 
           filters.stopsCount = val ? parseInt(val.toString(), 10) : 4;
+          bg.updateFilters(tabId, filters);
+        }
+      },
+      {
+        condition: true,
+        elementSelector: '[name="origin-city-filter"]',
+        event: 'change',
+        action: (tabId: number, eventTarget: JQuery<EventTarget>) => {
+          const val = eventTarget.val();
+          const filters: TabFilters = {
+            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
+            originCityFilter: val ? val.toString() : '',
+          }
+
           bg.updateFilters(tabId, filters);
         }
       },

@@ -29,8 +29,12 @@ export class SearchService {
               if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
                 toursList = this.applyDateTillFilter(toursList, currentSearchedTabFilters.dateTillFilter);
               }
- 
-              if(currentSearchedTabFilters && currentSearchedTabFilters.originStatesFilter.length) {
+
+              if (currentSearchedTabFilters && currentSearchedTabFilters.originCityFilter !== '') {
+                toursList = this.applyOriginCityFilter(toursList, currentSearchedTabFilters.originCityFilter);
+              }
+
+              if (currentSearchedTabFilters && currentSearchedTabFilters.originStatesFilter.length) {
                 toursList = this.applyOriginStatesFilter(toursList, currentSearchedTabFilters.originStatesFilter);
               }
 
@@ -114,6 +118,21 @@ export class SearchService {
 
       const startDate = dayjs(tourStartDate).set('year', currentYear);
       return startDate.isBefore(allowedStartDate);
+    });
+
+    return toursList;
+  }
+
+  private applyOriginCityFilter(toursList: JQuery<HTMLElement>, destinationStatesFilter: string): JQuery<HTMLElement> {
+    toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
+      const tourOriginInfo: string = $(tourCard)
+        .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
+        .text();
+
+      const matchPattern = new RegExp('\\s' + destinationStatesFilter.toLowerCase() + ',');
+      const originCity = tourOriginInfo.toLowerCase().match(matchPattern);
+
+      return !!(originCity && originCity.index);
     });
 
     return toursList;

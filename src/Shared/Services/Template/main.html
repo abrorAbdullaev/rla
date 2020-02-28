@@ -110,6 +110,12 @@
                 </div>
                 <hr />
                 <div class="form-group">
+                  <label>Origin City Filter</label>
+                  <input data-tab-id={{ id }} type="text" name="origin-city-filter" class="form-control" value="{{filters.originCityFilter}}" placeholder="Insert city name" />
+                  <small class="form-text text-muted">Letters Case doesn't matter.</small>
+                </div>
+                <hr />
+                <div class="form-group">
                   <label>
                     Origin states&nbsp;
                         {{^filters.originStatesFilter.length}}<span class="mark mark-warning"></span> (Not given){{/filters.originStatesFilter.length}}
