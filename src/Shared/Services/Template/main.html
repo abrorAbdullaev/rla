@@ -111,6 +111,27 @@
                 <hr />
                 <div class="form-group">
                   <label>
+                    Origin states&nbsp;
+                        {{^filters.originStatesFilter.length}}<span class="mark mark-warning"></span> (Not given){{/filters.originStatesFilter.length}}
+                        {{#filters.originStatesFilter.length}}<span class="mark mark-success"></span>{{/filters.originStatesFilter.length}}
+                  </label>
+                  <div class="card w-100">
+                    <div class="card-body">
+                      <h5 class="card-title">
+                        {{^filters.originStatesFilter.length}}No states selected{{/filters.originStatesFilter.length}}
+                        {{#filters.originStatesFilter}}
+                          <span>{{.}} </span>
+                        {{/filters.originStatesFilter}}
+                      </h5>
+                      <p class="card-text"></p>
+                      <button data-tab-id="{{ id }}" type="button" class="btn btn-primary origin-states-btn">Edit</button>
+                      <button data-tab-id="{{ id }}" type="button" class="btn btn-secondary ml-1 origin-states-clean-btn">Clean</button>
+                    </div>
+                  </div>
+                </div>
+                <hr />
+                <div class="form-group">
+                  <label>
                     Destination states&nbsp;
                         {{^filters.destinationStatesFilter.length}}<span class="mark mark-warning"></span> (Not given){{/filters.destinationStatesFilter.length}}
                         {{#filters.destinationStatesFilter.length}}<span class="mark mark-success"></span>{{/filters.destinationStatesFilter.length}}

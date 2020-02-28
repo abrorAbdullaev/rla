@@ -29,7 +29,11 @@ export class SearchService {
               if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
                 toursList = this.applyDateTillFilter(toursList, currentSearchedTabFilters.dateTillFilter);
               }
-  
+ 
+              if(currentSearchedTabFilters && currentSearchedTabFilters.originStatesFilter.length) {
+                toursList = this.applyOriginStatesFilter(toursList, currentSearchedTabFilters.originStatesFilter);
+              }
+
               if (currentSearchedTabFilters && currentSearchedTabFilters.destinationStatesFilter.length) {
                 toursList = this.applyDestinationStatesFilter(toursList, currentSearchedTabFilters.destinationStatesFilter);
               }
@@ -118,8 +122,8 @@ export class SearchService {
   private applyDestinationStatesFilter(toursList: JQuery<HTMLElement>, destinationStatesFilter: Array<string>): JQuery<HTMLElement> {
     toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
       const tourDestinationInfo: string = $(tourCard)
-      .find('.tour-header__work-opportunity-stop-row .run-stop:last .city')
-      .text();
+        .find('.tour-header__work-opportunity-stop-row .run-stop:last .city')
+        .text();
 
       const destinationState = states.find((state) => {
         const matchPattern = new RegExp('\\s' + state.name.toLowerCase() + '\\s|\\s' + state.abbreviation.toLowerCase() + '\\s');
@@ -127,6 +131,23 @@ export class SearchService {
       });
       
       return !!(destinationState && destinationStatesFilter.includes(destinationState.abbreviation));
+    });
+
+    return toursList;
+  }
+
+  private applyOriginStatesFilter(toursList: JQuery<HTMLElement>, originStatesFilter: Array<string>): JQuery<HTMLElement> {
+    toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
+      const tourOriginInfo: string = $(tourCard)
+        .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
+        .text();
+
+      const originState = states.find((state) => {
+        const matchPattern = new RegExp('\\s' + state.name.toLowerCase() + '\\s|\\s' + state.abbreviation.toLowerCase() + '\\s');
+        return tourOriginInfo.toLowerCase().match(matchPattern);
+      });
+
+      return !!(originState && originStatesFilter.includes(originState.abbreviation));
     });
 
     return toursList;

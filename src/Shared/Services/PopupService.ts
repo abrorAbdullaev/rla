@@ -259,6 +259,76 @@ export class PopupService {
         },
         withoutUpdate: true,
       },
+      {
+        condition: true,
+        elementSelector: '.origin-states-clean-btn',
+        event: 'click',
+        action: (tabId: number) => {
+          const filters: TabFilters = {
+            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
+          };
+          
+          bg.updateFilters(tabId, {
+            ...filters,
+            originStatesFilter: [],
+          } as TabFilters);
+        }
+      },
+      {
+        condition: true,
+        elementSelector: '.origin-states-btn',
+        event: 'click',
+        action: (tabId: number) => {
+          const filters = {
+            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
+          };
+
+          const mapContainer: JQuery<HTMLElement> = jQuery('#map-container');
+          const modalBackdrop: JQuery<HTMLElement> = $('.modal-backdrop');
+          const selectedStatesList: JQuery<HTMLElement> = $('.selected-states');
+
+          let states: Array<string> = [...filters.originStatesFilter];
+        
+          $('#settings-container').addClass('d-none')
+          modalBackdrop.addClass('d-block');
+          mapContainer.addClass('d-block');
+          
+          // The usmap is coming from outside library
+          // @ts-ignore
+          mapContainer.find('.inner-container').first().usmap({
+            showLabels: true,
+            click: (_: any, stateData: { name: string }) => {
+              const ind: number = states.findIndex((state) => state == stateData.name);
+              ind >= 0
+                ? states.splice(ind, 1)
+                : states.push(stateData.name);
+
+              selectedStatesList.text(states.sort((a: string, b: string) => a.localeCompare(b)).join(', '));
+            }
+          });
+
+          $('.states-clear-btn').off().on('click', () => {
+            states = [];
+            selectedStatesList.text(states.join(', '));
+          });
+
+          $('.states-cancel-btn').off().on('click', () => {
+            this.renderContent(bg);
+          });
+
+          $('.states-apply-btn').off().on('click', () => {
+            filters.originStatesFilter = states;
+
+            bg.updateFilters(tabId, filters);
+            this.renderContent(bg);
+          });
+          
+          selectedStatesList.text(states.join(', '));
+          modalBackdrop.addClass('show');
+          mapContainer.addClass('show');
+        },
+        withoutUpdate: true,
+      },
     ]
     
     actionsMap.forEach((actionMap: ActionMapObject) => {

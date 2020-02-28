@@ -6,6 +6,7 @@ export enum TabStatus {
 
 export interface TabFilters {
   dateTillFilter: string,
+  originStatesFilter: Array<string>,
   destinationStatesFilter: Array<string>,
   autoBook: boolean,
   stopsCount: number
@@ -34,6 +35,7 @@ export const defaultTabInfo: Omit<TabInfo, 'id'> = {
   expanded: false,
   filters: {
     dateTillFilter: '',
+    originStatesFilter: [],
     destinationStatesFilter: [],
     autoBook: false,
     stopsCount: 4,

@@ -24,6 +24,10 @@ export class BookingService{
 
         resolve(true);
 
+        // ====================
+        // Check if the booking has happened
+        // ====================
+
         // let counter: number = 0;
         // const interval = setInterval(() => {
         //   chrome.tabs.executeScript(tabId, {

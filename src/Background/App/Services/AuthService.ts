@@ -11,7 +11,7 @@ export class AuthService {
   findMatch(login: string, password: string): Promise<{ isSuccess: boolean, encryption: string }> {
     return new Promise<{ isSuccess: boolean, encryption: string }>((resolve) => {
       $.ajax({
-        url: 'https://min.gitcdn.link/repo/abrorAbdullaev/RelayAuth/master/authv2.json',
+        url: 'https://cdn.jsdelivr.net/gh/abrorAbdullaev/RelayAuth/authv2.json',
         method: 'GET',
         success: (response: {[key: string]: string} ) => {
         const passHash = response[sha256(login)];
