@@ -2,7 +2,7 @@ import $ from 'jquery';
 import dayjs from 'dayjs';
 import states from 'states-us';
 import { injectable } from "tsyringe";
-import { TabFilters } from '../Models';
+import { TabFilters, TabOriginStateInfo } from '../Models';
 
 @injectable()
 export class SearchService {
@@ -26,13 +26,13 @@ export class SearchService {
             if (toursList.length) {
               const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
 
-              if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
-                toursList = this.applyDateTillFilter(toursList, currentSearchedTabFilters.dateTillFilter);
-              }
+              // if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
+              //   toursList = this.applyDateTillFilter(toursList, currentSearchedTabFilters.dateTillFilter);
+              // }
 
-              if (currentSearchedTabFilters && currentSearchedTabFilters.originCityFilter !== '') {
-                toursList = this.applyOriginCityFilter(toursList, currentSearchedTabFilters.originCityFilter);
-              }
+              // if (currentSearchedTabFilters && currentSearchedTabFilters.originCityFilter !== '') {
+              //   toursList = this.applyOriginCityFilter(toursList, currentSearchedTabFilters.originCityFilter);
+              // }
 
               if (currentSearchedTabFilters && currentSearchedTabFilters.originStatesFilter.length) {
                 toursList = this.applyOriginStatesFilter(toursList, currentSearchedTabFilters.originStatesFilter);
@@ -103,40 +103,40 @@ export class SearchService {
    * ============================
    */
 
-  private applyDateTillFilter(toursList: JQuery<any>, dateTillFilter: string): JQuery<any> {
-    const currentYear = dayjs().get('year');
-    const allowedStartDate = dayjs(dateTillFilter);
+  // private applyDateTillFilter(toursList: JQuery<any>, dateTillFilter: string): JQuery<any> {
+  //   const currentYear = dayjs().get('year');
+  //   const allowedStartDate = dayjs(dateTillFilter);
 
-    toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
-      const tourStartDate = $(tourCard)
-        .find('.tour-header__work-opportunity-stop-row .run-stop:first .tour-header__secondary')
-        .text();
+  //   toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
+  //     const tourStartDate = $(tourCard)
+  //       .find('.tour-header__work-opportunity-stop-row .run-stop:first .tour-header__secondary')
+  //       .text();
 
-      if (!tourStartDate) {
-        return false;
-      }
+  //     if (!tourStartDate) {
+  //       return false;
+  //     }
 
-      const startDate = dayjs(tourStartDate).set('year', currentYear);
-      return startDate.isBefore(allowedStartDate);
-    });
+  //     const startDate = dayjs(tourStartDate).set('year', currentYear);
+  //     return startDate.isBefore(allowedStartDate);
+  //   });
 
-    return toursList;
-  }
+  //   return toursList;
+  // }
 
-  private applyOriginCityFilter(toursList: JQuery<HTMLElement>, destinationStatesFilter: string): JQuery<HTMLElement> {
-    toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
-      const tourOriginInfo: string = $(tourCard)
-        .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
-        .text();
+  // private applyOriginCityFilter(toursList: JQuery<HTMLElement>, destinationStatesFilter: string): JQuery<HTMLElement> {
+  //   toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
+  //     const tourOriginInfo: string = $(tourCard)
+  //       .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
+  //       .text();
 
-      const matchPattern = new RegExp('\\s' + destinationStatesFilter.toLowerCase() + ',');
-      const originCity = tourOriginInfo.toLowerCase().match(matchPattern);
+  //     const matchPattern = new RegExp('\\s' + destinationStatesFilter.toLowerCase() + ',');
+  //     const originCity = tourOriginInfo.toLowerCase().match(matchPattern);
 
-      return !!(originCity && originCity.index);
-    });
+  //     return !!(originCity && originCity.index);
+  //   });
 
-    return toursList;
-  }
+  //   return toursList;
+  // }
 
   private applyDestinationStatesFilter(toursList: JQuery<HTMLElement>, destinationStatesFilter: Array<string>): JQuery<HTMLElement> {
     toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
@@ -155,7 +155,7 @@ export class SearchService {
     return toursList;
   }
 
-  private applyOriginStatesFilter(toursList: JQuery<HTMLElement>, originStatesFilter: Array<string>): JQuery<HTMLElement> {
+  private applyOriginStatesFilter(toursList: JQuery<HTMLElement>, originStatesFilter: Array<TabOriginStateInfo>): JQuery<HTMLElement> {
     toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
       const tourOriginInfo: string = $(tourCard)
         .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
@@ -166,7 +166,10 @@ export class SearchService {
         return tourOriginInfo.toLowerCase().match(matchPattern);
       });
 
-      return !!(originState && originStatesFilter.includes(originState.abbreviation));
+      return true;
+
+      // TODO Implement
+      // return !!(originState && originStatesFilter.includes(originState.abbreviation));
     });
 
     return toursList;

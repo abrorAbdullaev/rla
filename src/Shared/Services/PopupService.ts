@@ -1,7 +1,7 @@
 import { injectable } from "tsyringe";
 import * as Mustache from 'mustache';
 import $ from 'jquery';
-import { MainTemplate, TabFilters, PrintInfo, TabInfo } from "../Models";
+import { MainTemplate, TabFilters, PrintInfo, TabInfo, TabOriginStateInfo } from "../Models";
 import { App as BackgroundApp } from '../../Background/App/App';
 import dayjs from "dayjs";
 
@@ -142,20 +142,6 @@ export class PopupService {
       },
       {
         condition: true,
-        elementSelector: '[name="date-till-filter"]',
-        event: 'change',
-        action: (tabId: number, eventTarget: JQuery<EventTarget>) => {
-          const val = eventTarget.val();
-          const filters: TabFilters = {
-            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
-          };
-
-          filters.dateTillFilter = val ? val.toString() : '';
-          bg.updateFilters(tabId, filters);
-        }
-      },
-      {
-        condition: true,
         elementSelector: '[name="stops-count-filter"]',
         event: 'change',
         action: (tabId: number, eventTarget: JQuery<EventTarget>) => {
@@ -165,20 +151,6 @@ export class PopupService {
           }
 
           filters.stopsCount = val ? parseInt(val.toString(), 10) : 4;
-          bg.updateFilters(tabId, filters);
-        }
-      },
-      {
-        condition: true,
-        elementSelector: '[name="origin-city-filter"]',
-        event: 'change',
-        action: (tabId: number, eventTarget: JQuery<EventTarget>) => {
-          const val = eventTarget.val();
-          const filters: TabFilters = {
-            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
-            originCityFilter: val ? val.toString() : '',
-          }
-
           bg.updateFilters(tabId, filters);
         }
       },
@@ -217,6 +189,54 @@ export class PopupService {
           bg.updateFilters(tabId, {
             ...filters,
             destinationStatesFilter: [],
+          } as TabFilters);
+        }
+      },
+      {
+        condition: true,
+        elementSelector: '[name="origin-state-name"]',
+        event: 'change',
+        action: (tabId: number, eventTarget: JQuery<Element>) => {
+          const val = eventTarget.val();
+          const stateName = eventTarget.attr('data-state-name');
+          const filters: TabFilters = {
+            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
+          };
+          const originFilterInd = filters.originStatesFilter.findIndex((originStateInfo) => {
+            const formattedStateName = originStateInfo.stateName.toLowerCase();
+            const targetStateName = stateName ? stateName.toLowerCase() : '';
+
+            return formattedStateName === targetStateName;
+          });
+            
+          filters.originStatesFilter[originFilterInd].city = val ? val.toString() : '';
+
+          bg.updateFilters(tabId, {
+            ...filters,
+          } as TabFilters);
+        }
+      },
+      {
+        condition: true,
+        elementSelector: '[name="origin-state-date-till"]',
+        event: 'change',
+        action: (tabId: number, eventTarget: JQuery<Element>) => {
+          const val = eventTarget.val();
+          const stateName = eventTarget.attr('data-state-name');
+          const filters: TabFilters = {
+            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
+          };
+          const originFilterInd = filters.originStatesFilter.findIndex((originStateInfo) => {
+            const formattedStateName = originStateInfo.stateName.toLowerCase();
+            const targetStateName = stateName ? stateName.toLowerCase() : '';
+
+            return formattedStateName === targetStateName;
+          });
+            
+          filters.originStatesFilter[originFilterInd].time = val ? val.toString() : '';
+
+          bg.updateFilters(tabId, {
+            ...filters,
           } as TabFilters);
         }
       },
@@ -303,7 +323,7 @@ export class PopupService {
           const modalBackdrop: JQuery<HTMLElement> = $('.modal-backdrop');
           const selectedStatesList: JQuery<HTMLElement> = $('.selected-states');
 
-          let states: Array<string> = [...filters.originStatesFilter];
+          let states: Array<TabOriginStateInfo> = [...filters.originStatesFilter];
         
           $('#settings-container').addClass('d-none')
           modalBackdrop.addClass('d-block');
@@ -314,12 +334,20 @@ export class PopupService {
           mapContainer.find('.inner-container').first().usmap({
             showLabels: true,
             click: (_: any, stateData: { name: string }) => {
-              const ind: number = states.findIndex((state) => state == stateData.name);
+              const ind: number = states.findIndex((state) => state.stateName == stateData.name);
+              
               ind >= 0
                 ? states.splice(ind, 1)
-                : states.push(stateData.name);
+                : states.push({
+                  stateName: stateData.name,
+                  city: '',
+                  time: '',
+                } as TabOriginStateInfo);
 
-              selectedStatesList.text(states.sort((a: string, b: string) => a.localeCompare(b)).join(', '));
+                selectedStatesList.text(
+                  states.map((state) => state.stateName)
+                    .sort((a: string, b: string) => a.localeCompare(b)).join(', '),
+                );
             }
           });
 
@@ -423,7 +451,8 @@ export class PopupService {
 
     // TODO Move to array
     doc.fromHTML("<span><strong>Date Till Filter:</strong></span>", leftOffset, top, configs);
-    doc.fromHTML("<span>" + tabInfo.filters.dateTillFilter + "</span>", leftOffset + 60, top, configs);
+    // TODO Add from origin state filter
+    // doc.fromHTML("<span>" + tabInfo.filters.dateTillFilter + "</span>", leftOffset + 60, top, configs);
     top += 5;
     doc.line(leftOffset, top, leftOffset + 100, top);
     top += 3;

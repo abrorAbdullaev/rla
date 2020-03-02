@@ -2,20 +2,6 @@
   @var currentNotObserved?: boolean
   @var currentTab?:         chrome.tabs.Tab
   @var observedTabs:        TabInfo[]
-  /*
-   *  id:           number,
-   *  status:       "idle" | "searching"
-   *  searchStatus: boolean
-   *  isFound:      boolean
-   *  filters:      {
-   *                   dateTillFilter: string
-   *                   destinationStatesFilter: string[]
-   *                }
-   *  printInfo:    {
-   *                   loadId: string
-   *                   loadLength: number
-   *                }
-   */
 -->
 <div id="map-container" class="modal fade">
   <div class="modal-dialog">
@@ -92,27 +78,11 @@
               <form id="filtersForm">
                 <hr />
                 <div class="form-group">
-                  <label for="date-till-filter">Time Filter 
-                    {{^filters.dateTillFilter}}<span class="mark mark-warning"></span> (Not given){{/filters.dateTillFilter}}
-                    {{#filters.dateTillFilter}}<span class="mark mark-success"></span>{{/filters.dateTillFilter}}
-                  </label>
-                  <input name="date-till-filter" type="datetime-local" class="form-control" 
-                    value="{{ filters.dateTillFilter }}" data-tab-id={{ id }}/>
-                  <small class="form-text text-muted">Insert the date till which you want to search.</small>
-                </div>
-                <hr />
-                <div class="form-group">
                   <label>Stops Count Filter
                     {{#filters.stopsCount}}<span class="mark mark-success"></span> <span>({{.}})</span>{{/filters.stopsCount}}
                   </label>
                   <input data-tab-id={{ id }} name="stops-count-filter" class="form-control" type="number" value={{filters.stopsCount}} min=1 max=20 />
                   <small class="form-text text-muted">Insert the max number of stops inclusively.</small>
-                </div>
-                <hr />
-                <div class="form-group">
-                  <label>Origin City Filter</label>
-                  <input data-tab-id={{ id }} type="text" name="origin-city-filter" class="form-control" value="{{filters.originCityFilter}}" placeholder="Insert city name" />
-                  <small class="form-text text-muted">Letters Case doesn't matter.</small>
                 </div>
                 <hr />
                 <div class="form-group">
@@ -123,13 +93,31 @@
                   </label>
                   <div class="card w-100">
                     <div class="card-body">
-                      <h5 class="card-title">
-                        {{^filters.originStatesFilter.length}}No states selected{{/filters.originStatesFilter.length}}
-                        {{#filters.originStatesFilter}}
-                          <span>{{.}} </span>
-                        {{/filters.originStatesFilter}}
-                      </h5>
-                      <p class="card-text"></p>
+                      {{^filters.originStatesFilter.length}}
+                        <h5 class="card-title">
+                          No states selected
+                        </h5>
+                      {{/filters.originStatesFilter.length}}
+                      {{#filters.originStatesFilter}}
+                      <div class="mt-1 border p-2">
+                        <h5 class="card-title">{{stateName}}</h5>
+                        <div class="form-group">
+                          <input class="form-control mt-1" data-tab-id="{{ id }}" data-state-name="{{ stateName }}" name="origin-state-name" type="text" value="{{ city }}" placeholder="Select city name" />
+                          <small class="form-text text-muted">
+                            Insert Origin City Filter&nbsp;
+                            {{^city}}<span class="mark mark-warning"></span>{{/city}}
+                            {{#city}}<span class="mark mark-success"></span>{{/city}}
+                          </small>
+
+                          <input class="mt-1 form-control" data-tab-id="{{ id }}" data-state-name="{{ stateName }}" name="origin-state-date-till" type="datetime-local" value="{{ time }}" />      
+                          <small class="form-text text-muted">
+                            Insert Date Till Filter For Current State&nbsp;
+                            {{^time}}<span class="mark mark-warning"></span>{{/time}}
+                            {{#time}}<span class="mark mark-success"></span>{{/time}}
+                          </small>
+                        </div>
+                      </div>
+                      {{/filters.originStatesFilter}}
                       <button data-tab-id="{{ id }}" type="button" class="btn btn-primary origin-states-btn">Edit</button>
                       <button data-tab-id="{{ id }}" type="button" class="btn btn-secondary ml-1 origin-states-clean-btn">Clean</button>
                     </div>
@@ -150,7 +138,6 @@
                           <span>{{.}} </span>
                         {{/filters.destinationStatesFilter}}
                       </h5>
-                      <p class="card-text"></p>
                       <button data-tab-id="{{ id }}" type="button" class="btn btn-primary destination-states-btn">Edit</button>
                       <button data-tab-id="{{ id }}" type="button" class="btn btn-secondary ml-1 destination-states-clean-btn">Clean</button>
                     </div>

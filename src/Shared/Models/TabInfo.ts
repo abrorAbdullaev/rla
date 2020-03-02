@@ -4,10 +4,14 @@ export enum TabStatus {
   found = 'found'
 }
 
+export interface TabOriginStateInfo {
+  stateName: string,
+  city: string,
+  time: string,
+}
+
 export interface TabFilters {
-  dateTillFilter: string,
-  originCityFilter: string,
-  originStatesFilter: Array<string>,
+  originStatesFilter: Array<TabOriginStateInfo>,
   destinationStatesFilter: Array<string>,
   autoBook: boolean,
   stopsCount: number
@@ -35,8 +39,6 @@ export const defaultTabInfo: Omit<TabInfo, 'id'> = {
   isFound: false,
   expanded: false,
   filters: {
-    dateTillFilter: '',
-    originCityFilter: '',
     originStatesFilter: [],
     destinationStatesFilter: [],
     autoBook: false,
