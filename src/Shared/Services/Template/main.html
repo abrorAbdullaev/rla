@@ -99,24 +99,27 @@
                         </h5>
                       {{/filters.originStatesFilter.length}}
                       {{#filters.originStatesFilter}}
-                      <div class="mt-1 border p-2">
-                        <h5 class="card-title">{{stateName}}</h5>
-                        <div class="form-group">
-                          <input class="form-control mt-1" data-tab-id="{{ id }}" data-state-name="{{ stateName }}" name="origin-state-name" type="text" value="{{ city }}" placeholder="Select city name" />
-                          <small class="form-text text-muted">
-                            Insert Origin City Filter&nbsp;
-                            {{^city}}<span class="mark mark-warning"></span>{{/city}}
-                            {{#city}}<span class="mark mark-success"></span>{{/city}}
-                          </small>
+                        <div class="my-1 border p-2">
+                          <h5 class="card-title">{{stateName}}</h5>
+                          <div class="form-group">
+                            <input class="form-control mt-1" data-tab-id="{{ id }}" data-state-name="{{ stateName }}" name="origin-state-name" type="text" value="{{ city }}" placeholder="Select city name" />
+                            <small class="form-text text-muted">
+                              Insert Origin City Filter&nbsp;
+                              {{^city}}<span class="mark mark-warning"></span>{{/city}}
+                              {{#city}}<span class="mark mark-success"></span>{{/city}}
+                            </small>
 
-                          <input class="mt-1 form-control" data-tab-id="{{ id }}" data-state-name="{{ stateName }}" name="origin-state-date-till" type="datetime-local" value="{{ time }}" />      
-                          <small class="form-text text-muted">
-                            Insert Date Till Filter For Current State&nbsp;
-                            {{^time}}<span class="mark mark-warning"></span>{{/time}}
-                            {{#time}}<span class="mark mark-success"></span>{{/time}}
-                          </small>
+                            <input class="mt-1 form-control" data-tab-id="{{ id }}" data-state-name="{{ stateName }}" name="origin-state-date-till" type="datetime-local" value="{{ time }}" />      
+                            <small>
+                              https://www.timeanddate.com/worldclock/converter.html
+                            </small>
+                            <small class="form-text text-muted">
+                              Insert Date Till Filter For Current State&nbsp;
+                              {{^time}}<span class="mark mark-warning"></span>{{/time}}
+                              {{#time}}<span class="mark mark-success"></span>{{/time}}
+                            </small>
+                          </div>
                         </div>
-                      </div>
                       {{/filters.originStatesFilter}}
                       <button data-tab-id="{{ id }}" type="button" class="btn btn-primary origin-states-btn">Edit</button>
                       <button data-tab-id="{{ id }}" type="button" class="btn btn-secondary ml-1 origin-states-clean-btn">Clean</button>

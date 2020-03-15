@@ -1,10 +1,10 @@
 import { sha256 } from 'js-sha256';
 import $ from 'jquery';
-import dayjs = require('dayjs');
+import dayjs from 'dayjs-ext';
 
 export interface AuthData {
-    encryption: string,
-    expiresAt?: dayjs.Dayjs,
+  encryption: string,
+  expiresAt?: dayjs.Dayjs,
 }
 
 export class AuthService {

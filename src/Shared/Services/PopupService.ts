@@ -3,7 +3,7 @@ import * as Mustache from 'mustache';
 import $ from 'jquery';
 import { MainTemplate, TabFilters, PrintInfo, TabInfo, TabOriginStateInfo } from "../Models";
 import { App as BackgroundApp } from '../../Background/App/App';
-import dayjs from "dayjs";
+import dayjs from 'dayjs-ext';
 
 declare var require: {
   (path: string): any;
@@ -43,8 +43,6 @@ export class PopupService {
 
       return;
     }
-
-    console.log(bg.observedTabs);
 
     const mainTemplate = {
       observedTabs: bg.observedTabs,
@@ -367,7 +365,7 @@ export class PopupService {
             this.renderContent(bg);
           });
           
-          selectedStatesList.text(states.join(', '));
+          selectedStatesList.text(states.map((state) => state.stateName).join(', '));
           modalBackdrop.addClass('show');
           mapContainer.addClass('show');
         },

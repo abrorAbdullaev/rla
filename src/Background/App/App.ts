@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import dayjs from 'dayjs';
+import dayjs from 'dayjs-ext';
 import { AuthService, AuthData } from './Services';
 import { TabsService, SearchService } from '../../Shared/Services';
 import { TabInfo, TabStatus, TabFilters, defaultTabInfo, PrintInfo } from '../../Shared/Models/TabInfo';

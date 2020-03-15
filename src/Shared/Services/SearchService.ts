@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import dayjs from 'dayjs';
+import dayjs from 'dayjs-ext';
 import states from 'states-us';
 import { injectable } from "tsyringe";
 import { TabFilters, TabOriginStateInfo } from '../Models';
@@ -25,14 +25,6 @@ export class SearchService {
         
             if (toursList.length) {
               const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
-
-              // if (currentSearchedTabFilters && !!currentSearchedTabFilters.dateTillFilter && dayjs(currentSearchedTabFilters.dateTillFilter).isValid()) {
-              //   toursList = this.applyDateTillFilter(toursList, currentSearchedTabFilters.dateTillFilter);
-              // }
-
-              // if (currentSearchedTabFilters && currentSearchedTabFilters.originCityFilter !== '') {
-              //   toursList = this.applyOriginCityFilter(toursList, currentSearchedTabFilters.originCityFilter);
-              // }
 
               if (currentSearchedTabFilters && currentSearchedTabFilters.originStatesFilter.length) {
                 toursList = this.applyOriginStatesFilter(toursList, currentSearchedTabFilters.originStatesFilter);
@@ -103,41 +95,6 @@ export class SearchService {
    * ============================
    */
 
-  // private applyDateTillFilter(toursList: JQuery<any>, dateTillFilter: string): JQuery<any> {
-  //   const currentYear = dayjs().get('year');
-  //   const allowedStartDate = dayjs(dateTillFilter);
-
-  //   toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
-  //     const tourStartDate = $(tourCard)
-  //       .find('.tour-header__work-opportunity-stop-row .run-stop:first .tour-header__secondary')
-  //       .text();
-
-  //     if (!tourStartDate) {
-  //       return false;
-  //     }
-
-  //     const startDate = dayjs(tourStartDate).set('year', currentYear);
-  //     return startDate.isBefore(allowedStartDate);
-  //   });
-
-  //   return toursList;
-  // }
-
-  // private applyOriginCityFilter(toursList: JQuery<HTMLElement>, destinationStatesFilter: string): JQuery<HTMLElement> {
-  //   toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
-  //     const tourOriginInfo: string = $(tourCard)
-  //       .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
-  //       .text();
-
-  //     const matchPattern = new RegExp('\\s' + destinationStatesFilter.toLowerCase() + ',');
-  //     const originCity = tourOriginInfo.toLowerCase().match(matchPattern);
-
-  //     return !!(originCity && originCity.index);
-  //   });
-
-  //   return toursList;
-  // }
-
   private applyDestinationStatesFilter(toursList: JQuery<HTMLElement>, destinationStatesFilter: Array<string>): JQuery<HTMLElement> {
     toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
       const tourDestinationInfo: string = $(tourCard)
@@ -158,20 +115,48 @@ export class SearchService {
   private applyOriginStatesFilter(toursList: JQuery<HTMLElement>, originStatesFilter: Array<TabOriginStateInfo>): JQuery<HTMLElement> {
     toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
       const tourOriginInfo: string = $(tourCard)
-        .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
-        .text();
+      .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
+      .text();
 
-      const originState = states.find((state) => {
+      const tourOriginState = states.find((state) => {
         const matchPattern = new RegExp('\\s' + state.name.toLowerCase() + '\\s|\\s' + state.abbreviation.toLowerCase() + '\\s');
         return tourOriginInfo.toLowerCase().match(matchPattern);
       });
 
-      return true;
+      const matchedOriginState = originStatesFilter.find((originStatesInfo) => 
+        originStatesInfo.stateName.toLowerCase() === tourOriginState?.abbreviation.toLowerCase());
 
-      // TODO Implement
-      // return !!(originState && originStatesFilter.includes(originState.abbreviation));
+      if (!!matchedOriginState) {
+        let citiesMatch = true;
+        let timeMatch = true;
+
+        if (!!matchedOriginState.city) {
+          const matchPattern = new RegExp('\\s' + matchedOriginState.city.toLowerCase() + ',');
+          citiesMatch = !!tourOriginInfo.toLowerCase().match(matchPattern);
+        }
+
+        if (!!matchedOriginState.time) {
+          const tourStartDate = $(tourCard)
+            .find('.tour-header__work-opportunity-stop-row .run-stop:first .tour-header__secondary')
+            .text();
+
+            if (!tourStartDate) {
+              timeMatch = false;
+            } else {
+              const currentYear = dayjs().year();
+              const allowedStartDate = dayjs(matchedOriginState.time);
+              const startDate = dayjs(tourStartDate).set('year', currentYear);
+
+              timeMatch = startDate.isBefore(allowedStartDate);
+            }
+        }
+
+        return citiesMatch && timeMatch;
+      }
+
+      return false;
     });
-
+    
     return toursList;
   }
 
