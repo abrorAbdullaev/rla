@@ -8,7 +8,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <div class="container">
-          <div class="row row-cols-2">
+          <div class="row">
             <div class="col">
               <h3>Pick the states</h3>
             </div>
@@ -57,20 +57,15 @@
         data-tab-id={{ currentTab.id }}>Add the button to observed list with id: {{ currentTab.id }}</button>
     </div>
   {{ /currentNotObserved }}
-  <div class="row row-cols-2">
+  <div class="row">
     {{ #observedTabs }}
       <div class="col mb-2">
-        <div class="border border-primary p-2">
+        <div class="p-2">
           <h5>Tab Id: {{ id }}</h5>
           <span>Status: {{ status }} 
             {{ #isFound }}<span class="mark mark-success"></span>{{ /isFound }}
           </span>
-          <button class="btn btn-primary w-100 tab-switch-btn mt-1" data-tab-id={{ id }}>Switch</button>
-          <button class="btn btn-primary w-100 tab-collapse-btn mt-1" data-tab-id={{ id }}>
-            {{^expanded}}Expand{{/expanded}}
-            {{#expanded}}Collapse{{/expanded}}
-          </button>
-          <div class="{{^expanded}}d-none{{/expanded}}">
+          <div>
             {{#printInfo.loadId}}
               <button class="btn btn-primary w-100 tab-print-btn mt-1" data-tab-id={{ id }}>Print</button>
             {{/printInfo.loadId}}

@@ -28,7 +28,6 @@ export interface TabInfo {
   status: TabStatus,
   searchStatus: boolean,
   isFound: boolean,
-  expanded: boolean,
   filters: TabFilters,
   printInfo: PrintInfo,
 }
@@ -37,7 +36,6 @@ export const defaultTabInfo: Omit<TabInfo, 'id'> = {
   status: TabStatus.idle,
   searchStatus: false,
   isFound: false,
-  expanded: false,
   filters: {
     originStatesFilter: [],
     destinationStatesFilter: [],

@@ -96,16 +96,6 @@ export class App {
     this.observedTabs[ind].printInfo = printInfo;
   }
 
-  toggleExpanded(tabId: number, toggle?: boolean): void {
-    const tab = this.observedTabs[this.getIndexByTabId(tabId)];
-
-    if (typeof toggle !== 'undefined') {
-      tab.expanded = toggle;
-    } else {
-      tab.expanded = !tab.expanded;
-    }
-  }
-
   startSearch() {
     const searchedTabs = this.getSearchedTabs();
     const searchItems: Array<{ tabId: number, filters: TabFilters }> = [];
@@ -159,11 +149,7 @@ export class App {
       });
     }
   }
-
-  activateTab(id: number) {
-    this.tabsService.switchToTab(id);
-  }
-
+  
   getIndexByTabId(tabId: number): number {
     return this.observedTabs.findIndex((obj: TabInfo) => obj.id === tabId);
   }

@@ -106,7 +106,6 @@ export class PopupService {
         elementSelector: '.tab-start-btn',
         event: 'click',
         action: (tabId: number) => {
-          bg.toggleExpanded(tabId, false);
           bg.startTabSearching(tabId);
         }
       },
@@ -116,14 +115,6 @@ export class PopupService {
         event: 'click',
         action: (tabId: number) => {
           bg.stopTabSearching(tabId);
-        }
-      },
-      {
-        condition: true,
-        elementSelector: '.tab-switch-btn',
-        event: 'click',
-        action: (tabId: number) => {
-          bg.activateTab(tabId);
         }
       },
       {
@@ -150,14 +141,6 @@ export class PopupService {
 
           filters.stopsCount = val ? parseInt(val.toString(), 10) : 4;
           bg.updateFilters(tabId, filters);
-        }
-      },
-      {
-        condition: true,
-        elementSelector: '.tab-collapse-btn',
-        event: 'click',
-        action: (tabId: number) => {
-          bg.toggleExpanded(tabId);
         }
       },
       {
