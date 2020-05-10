@@ -156,7 +156,6 @@ export class SearchService {
 
         if (!!matchedOriginState) {
           let timeMatch = true;
-          let cityMatch = true;
 
           if (!!matchedOriginState.time) {
             const tourStartDate = $(toursList[currentItemIndex])
@@ -182,7 +181,7 @@ export class SearchService {
               if (!!filterCityLocation || !!tourCityLocation) {
                 const distance = this.locationService.calculateDistance(filterCityLocation, tourCityLocation);
 
-                if (distance < 100) {
+                if ((!!matchedOriginState.radius && distance < matchedOriginState.radius) || distance > 100) {
                   response.push(toursList[currentItemIndex]); 
                 }
               }
@@ -202,68 +201,7 @@ export class SearchService {
       }
 
       iterate();
-      return; // TODO Remove
-
-      toursList.filter((_: any, tourCard: HTMLElement) => {
-        const tourOriginInfo: string = $(tourCard)
-        .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
-        .text();
-  
-        const tourOriginState = states.find((state) => {
-          const matchPattern = new RegExp('\\s' + state.name.toLowerCase() + '\\s|\\s' + state.abbreviation.toLowerCase() + '\\s');
-          return tourOriginInfo.toLowerCase().match(matchPattern);
-        });
-  
-        const matchedOriginState = originStatesFilter.find((originStatesInfo) => 
-          originStatesInfo.stateName.toLowerCase() === tourOriginState?.abbreviation.toLowerCase());
-        
-        if (!!matchedOriginState) {
-          let citiesMatch = true;
-          let timeMatch = true;
-  
-          if (!!matchedOriginState.city) {
-  
-  
-            this.locationService.getLocationLatLong(
-              matchedOriginState.city + ' ,' + matchedOriginState.stateName.toUpperCase()
-            ).then((expectedLoc) => {
-              console.log(expectedLoc);
-            });
-  
-  
-  
-  
-  
-  
-            citiesMatch = false;
-
-            // const matchPattern = new RegExp('\\s' + matchedOriginState.city.toLowerCase() + ',');
-            // citiesMatch = !!tourOriginInfo.toLowerCase().match(matchPattern);
-          }
-  
-          if (!!matchedOriginState.time) {
-            const tourStartDate = $(tourCard)
-              .find('.tour-header__work-opportunity-stop-row .run-stop:first .tour-header__secondary')
-              .text();
-  
-              if (!tourStartDate) {
-                timeMatch = false;
-              } else {
-                const currentYear = dayjs().year();
-                const allowedStartDate = dayjs(matchedOriginState.time);
-                const startDate = dayjs(tourStartDate).set('year', currentYear);
-  
-                timeMatch = startDate.isBefore(allowedStartDate);
-              }
-          }
-  
-          return citiesMatch && timeMatch;
-        }
-  
-        return false;
-      });
-
-      resolve(toursList);
+      return;
     });
   }
 

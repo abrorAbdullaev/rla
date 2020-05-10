@@ -8,6 +8,7 @@ export interface TabOriginStateInfo {
   stateName: string,
   city: string,
   time: string,
+  radius: number,
 }
 
 export interface TabFilters {

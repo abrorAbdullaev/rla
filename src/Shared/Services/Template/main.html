@@ -104,6 +104,13 @@
                               {{#city}}<span class="mark mark-success"></span>{{/city}}
                             </small>
 
+                            <input class="mt-1 form-control" data-tab-id="{{ id }}" placeholder="radius" data-state-name="{{ stateName }}" name="origin-state-radius" type="number" value="{{ radius }}" />
+                            <small class="form-text text-muted">
+                              Insert Radius&nbsp;
+                              {{^radius}}<span class="mark mark-warning"></span>{{/radius}}
+                              {{#radius}}<span class="mark mark-success"></span>{{/radius}}
+                            </small>
+
                             <input class="mt-1 form-control" data-tab-id="{{ id }}" data-state-name="{{ stateName }}" name="origin-state-date-till" type="datetime-local" value="{{ time }}" />      
                             <small>
                               https://www.timeanddate.com/worldclock/converter.html

@@ -244,6 +244,31 @@ export class PopupService {
       },
       {
         condition: true,
+        elementSelector: '[name="origin-state-radius"]',
+        event: 'change',
+        action: (tabId: number, eventTarget: JQuery<Element>) => {
+          const val = eventTarget.val();
+          const stateName = eventTarget.attr('data-state-name');
+          const filters: TabFilters = {
+            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
+          };
+
+          const originFilterInd = filters.originStatesFilter.findIndex((originStateInfo) => {
+            const formattedStateName = originStateInfo.stateName.toLowerCase();
+            const targetStateName = stateName ? stateName.toLowerCase() : '';
+
+            return formattedStateName === targetStateName;
+          });
+            
+          filters.originStatesFilter[originFilterInd].radius = val ? parseInt(val.toString(), 10) : 0;
+
+          bg.updateFilters(tabId, {
+            ...filters,
+          } as TabFilters);
+        }
+      },
+      {
+        condition: true,
         elementSelector: '.destination-states-btn',
         event: 'click',
         action: (tabId: number) => {
