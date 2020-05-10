@@ -1,9 +1,12 @@
 import { injectable } from "tsyringe";
 import * as Mustache from 'mustache';
 import $ from 'jquery';
-import { MainTemplate, TabFilters, PrintInfo, TabInfo, TabOriginStateInfo } from "../Models";
+// import csc from 'country-state-city';
+// import states from 'states-us';
+import { MainTemplate, TabFilters, TabInfo, TabOriginStateInfo } from "../Models";
 import { App as BackgroundApp } from '../../Background/App/App';
 import dayjs from 'dayjs-ext';
+// import states from 'states-us';
 
 declare var require: {
   (path: string): any;
@@ -47,6 +50,7 @@ export class PopupService {
     const mainTemplate = {
       observedTabs: bg.observedTabs,
       currentNotObserved: false,
+      cityNameHints: [],
     } as MainTemplate;
     
     // If the currentTab
@@ -175,28 +179,45 @@ export class PopupService {
       },
       {
         condition: true,
-        elementSelector: '[name="origin-state-name"]',
+        elementSelector: '[name="origin-city-name"]',
         event: 'change',
         action: (tabId: number, eventTarget: JQuery<Element>) => {
-          const val = eventTarget.val();
+          const cityName = eventTarget.val();
           const stateName = eventTarget.attr('data-state-name');
           const filters: TabFilters = {
             ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
           };
+
           const originFilterInd = filters.originStatesFilter.findIndex((originStateInfo) => {
             const formattedStateName = originStateInfo.stateName.toLowerCase();
             const targetStateName = stateName ? stateName.toLowerCase() : '';
 
             return formattedStateName === targetStateName;
           });
-            
-          filters.originStatesFilter[originFilterInd].city = val ? val.toString() : '';
+
+          filters.originStatesFilter[originFilterInd].city = cityName ? cityName.toString() : '';
 
           bg.updateFilters(tabId, {
             ...filters,
           } as TabFilters);
         }
       },
+      // {
+      //   condition: true,
+      //   elementSelector: '[name="origin-city-name"]',
+      //   event: 'keyup',
+      //   withoutUpdate: true,
+      //   action: (_, eventTarget: JQuery<Element>) => {
+      //     const cityName = eventTarget.val();
+      //     const stateName = eventTarget.attr('data-state-name');
+
+      //     if (cityName && cityName.toString().length > 2 && stateName) {
+      //       const cityHints = this.getCityHints(stateName, cityName.toString());
+
+      //       console.log(cityHints);
+      //     }
+      //   }
+      // },
       {
         condition: true,
         elementSelector: '[name="origin-state-date-till"]',
@@ -502,4 +523,17 @@ export class PopupService {
       // TODO Error case
     }
   }
+
+  // TODO Move to separate service
+  // private getCityHints(stateAbr: string, cityName: string) {
+  //   const resultCityHints = [];
+
+  //   const stateName = states.find((state) => state.abbreviation.toLowerCase() == stateAbr.toLowerCase())?.name;
+  
+  //   // US country id 231
+  //   const originState = csc.getStatesOfCountry('231').find((state) => state.name.toLowerCase() == stateName?.toLowerCase()); 
+  //   const cities = csc.getCitiesOfState(originState ? originState.id : '');
+    
+  //   return cities;
+  // }
 }

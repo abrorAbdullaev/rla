@@ -4,6 +4,7 @@
   "description": "",
   "main": "-",
   "dependencies": {
+    "country-state-city": "^1.0.4",
     "dayjs-ext": "^2.2.0",
     "dayjs-plugin-utc": "^0.1.2",
     "html-loader": "^0.5.5",

@@ -145,7 +145,7 @@ export class App {
 
           setTimeout(() => {
             this.startSearch();
-          }, 1);
+          }, 500);
       });
     }
   }

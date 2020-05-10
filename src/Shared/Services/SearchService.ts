@@ -3,12 +3,15 @@ import dayjs from 'dayjs-ext';
 import states from 'states-us';
 import { injectable } from "tsyringe";
 import { TabFilters, TabOriginStateInfo } from '../Models';
+import { LocationService } from './LocationService';
 
 @injectable()
 export class SearchService {
   private sound: HTMLAudioElement;
+  private locationService: LocationService;
   
   constructor() {
+    this.locationService = new LocationService();
     this.sound = new Audio('./assets/sound/horn.mp3');
     this.sound.load();
   }
@@ -21,14 +24,10 @@ export class SearchService {
         .then((tabsContents) => {
           tabsContents.forEach(({ tabId, content }) => {
             let tabHtmlContent: JQuery<HTMLElement> = $(content);
-            let toursList = tabHtmlContent.find('.tour-listing__card');
+            let toursList = tabHtmlContent.find('.tour-listing--loadboard:first .tour-listing__card');
         
             if (toursList.length) {
               const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
-
-              if (currentSearchedTabFilters && currentSearchedTabFilters.originStatesFilter.length) {
-                toursList = this.applyOriginStatesFilter(toursList, currentSearchedTabFilters.originStatesFilter);
-              }
 
               if (currentSearchedTabFilters && currentSearchedTabFilters.destinationStatesFilter.length) {
                 toursList = this.applyDestinationStatesFilter(toursList, currentSearchedTabFilters.destinationStatesFilter);
@@ -38,25 +37,45 @@ export class SearchService {
                 toursList = this.applyStopsCountFilter(toursList, currentSearchedTabFilters.stopsCount);
               }
 
-              if (toursList.length) {
-                response.push({ 
-                  tabId,
-                  loadCardItem: toursList.first(),
-                  autoBook: !!currentSearchedTabFilters && !!currentSearchedTabFilters.autoBook,
+              // TODO Optimize for better readability
+              if (currentSearchedTabFilters && currentSearchedTabFilters.originStatesFilter.length) {
+                this.applyOriginStatesFilter(toursList, currentSearchedTabFilters.originStatesFilter).then((toursList) => {
+                  if (toursList.length) {
+                    response.push({ 
+                      tabId,
+                      loadCardItem: toursList.first(),
+                      autoBook: !!currentSearchedTabFilters && !!currentSearchedTabFilters.autoBook,
+                    });
+                  } else if (this.canRefresh(tabHtmlContent)) {
+                    this.executeRefresh(tabId);
+                  }
+
+                  if (response.length) {
+                    this.sound.play();
+                  }  
+
+                  resolve(response);
                 });
+              } else {
+                // Origin Filter is not set
+                if (toursList.length) {
+                  response.push({ 
+                    tabId,
+                    loadCardItem: toursList.first(),
+                    autoBook: !!currentSearchedTabFilters && !!currentSearchedTabFilters.autoBook,
+                  });
+                } else if (this.canRefresh(tabHtmlContent)) {
+                  this.executeRefresh(tabId);
+                }
+
+                if (response.length) {
+                  this.sound.play();
+                }
+
+                resolve(response);
               }
             }
-            
-            if (!toursList.length && this.canRefresh(tabHtmlContent)) {
-              this.executeRefresh(tabId);
-            }
           });
-
-          if (response.length) {
-            this.sound.play();
-          }
-
-          resolve(response);
         });
     });
   }
@@ -112,52 +131,140 @@ export class SearchService {
     return toursList;
   }
 
-  private applyOriginStatesFilter(toursList: JQuery<HTMLElement>, originStatesFilter: Array<TabOriginStateInfo>): JQuery<HTMLElement> {
-    toursList = toursList.filter((_: any, tourCard: HTMLElement) => {
-      const tourOriginInfo: string = $(tourCard)
-      .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
-      .text();
+  private applyOriginStatesFilter(toursList: JQuery<HTMLElement>, originStatesFilter: Array<TabOriginStateInfo>): Promise<JQuery<HTMLElement>> {
+    return new Promise<JQuery<HTMLElement>>((resolve) => {
+      let response: Array<HTMLElement> = [];
+      let currentItemIndex = 0;
 
-      const tourOriginState = states.find((state) => {
-        const matchPattern = new RegExp('\\s' + state.name.toLowerCase() + '\\s|\\s' + state.abbreviation.toLowerCase() + '\\s');
-        return tourOriginInfo.toLowerCase().match(matchPattern);
-      });
-
-      const matchedOriginState = originStatesFilter.find((originStatesInfo) => 
-        originStatesInfo.stateName.toLowerCase() === tourOriginState?.abbreviation.toLowerCase());
-
-      if (!!matchedOriginState) {
-        let citiesMatch = true;
-        let timeMatch = true;
-
-        if (!!matchedOriginState.city) {
-          const matchPattern = new RegExp('\\s' + matchedOriginState.city.toLowerCase() + ',');
-          citiesMatch = !!tourOriginInfo.toLowerCase().match(matchPattern);
+      const iterate = () => {
+        if (currentItemIndex >= toursList.length) {
+          resolve($(response));
+          return;
         }
 
-        if (!!matchedOriginState.time) {
-          const tourStartDate = $(tourCard)
-            .find('.tour-header__work-opportunity-stop-row .run-stop:first .tour-header__secondary')
-            .text();
+        const tourOriginInfo: string = $(toursList[currentItemIndex])
+        .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
+        .text();
 
-            if (!tourStartDate) {
-              timeMatch = false;
-            } else {
-              const currentYear = dayjs().year();
-              const allowedStartDate = dayjs(matchedOriginState.time);
-              const startDate = dayjs(tourStartDate).set('year', currentYear);
+        const tourOriginState = states.find((state) => {
+          const matchPattern = new RegExp('\\s' + state.name.toLowerCase() + '\\s|\\s' + state.abbreviation.toLowerCase() + '\\s');
+          return tourOriginInfo.toLowerCase().match(matchPattern);
+        });
 
-              timeMatch = startDate.isBefore(allowedStartDate);
-            }
+        const matchedOriginState = originStatesFilter.find((originStatesInfo) => 
+          originStatesInfo.stateName.toLowerCase() === tourOriginState?.abbreviation.toLowerCase());
+
+        if (!!matchedOriginState) {
+          let timeMatch = true;
+          let cityMatch = true;
+
+          if (!!matchedOriginState.time) {
+            const tourStartDate = $(toursList[currentItemIndex])
+              .find('.tour-header__work-opportunity-stop-row .run-stop:first .tour-header__secondary')
+              .text();
+  
+              if (!tourStartDate) {
+                timeMatch = false;
+              } else {
+                const currentYear = dayjs().year();
+                const allowedStartDate = dayjs(matchedOriginState.time);
+                const startDate = dayjs(tourStartDate).set('year', currentYear);
+ 
+                timeMatch = startDate.isBefore(allowedStartDate);
+              }
+          }
+
+          if (!!matchedOriginState.city && timeMatch) {
+            Promise.all([
+              this.locationService.getLocationLatLong(matchedOriginState.city),
+              this.locationService.getLocationLatLong(tourOriginInfo.split(/(?<=^\S+)\s/)[1]),
+            ]).then(([filterCityLocation, tourCityLocation]) => {
+              if (!!filterCityLocation || !!tourCityLocation) {
+                const distance = this.locationService.calculateDistance(filterCityLocation, tourCityLocation);
+
+                if (distance < 100) {
+                  response.push(toursList[currentItemIndex]); 
+                }
+              }
+
+              currentItemIndex++;
+              iterate();
+            });
+          } else {
+            response.push(toursList[currentItemIndex]);
+            currentItemIndex++;
+            iterate();
+          }
+        } else {
+          currentItemIndex++;
+          iterate();
         }
-
-        return citiesMatch && timeMatch;
       }
 
-      return false;
+      iterate();
+      return; // TODO Remove
+
+      toursList.filter((_: any, tourCard: HTMLElement) => {
+        const tourOriginInfo: string = $(tourCard)
+        .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
+        .text();
+  
+        const tourOriginState = states.find((state) => {
+          const matchPattern = new RegExp('\\s' + state.name.toLowerCase() + '\\s|\\s' + state.abbreviation.toLowerCase() + '\\s');
+          return tourOriginInfo.toLowerCase().match(matchPattern);
+        });
+  
+        const matchedOriginState = originStatesFilter.find((originStatesInfo) => 
+          originStatesInfo.stateName.toLowerCase() === tourOriginState?.abbreviation.toLowerCase());
+        
+        if (!!matchedOriginState) {
+          let citiesMatch = true;
+          let timeMatch = true;
+  
+          if (!!matchedOriginState.city) {
+  
+  
+            this.locationService.getLocationLatLong(
+              matchedOriginState.city + ' ,' + matchedOriginState.stateName.toUpperCase()
+            ).then((expectedLoc) => {
+              console.log(expectedLoc);
+            });
+  
+  
+  
+  
+  
+  
+            citiesMatch = false;
+
+            // const matchPattern = new RegExp('\\s' + matchedOriginState.city.toLowerCase() + ',');
+            // citiesMatch = !!tourOriginInfo.toLowerCase().match(matchPattern);
+          }
+  
+          if (!!matchedOriginState.time) {
+            const tourStartDate = $(tourCard)
+              .find('.tour-header__work-opportunity-stop-row .run-stop:first .tour-header__secondary')
+              .text();
+  
+              if (!tourStartDate) {
+                timeMatch = false;
+              } else {
+                const currentYear = dayjs().year();
+                const allowedStartDate = dayjs(matchedOriginState.time);
+                const startDate = dayjs(tourStartDate).set('year', currentYear);
+  
+                timeMatch = startDate.isBefore(allowedStartDate);
+              }
+          }
+  
+          return citiesMatch && timeMatch;
+        }
+  
+        return false;
+      });
+
+      resolve(toursList);
     });
-    
-    return toursList;
   }
 
   private applyStopsCountFilter(toursList: JQuery<HTMLElement>, maxStopsCount: number): JQuery<HTMLElement> {
