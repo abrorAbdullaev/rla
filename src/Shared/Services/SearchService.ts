@@ -52,6 +52,8 @@ export class SearchService {
                       autoBook: !!currentSearchedTabFilters && !!currentSearchedTabFilters.autoBook,
                     });
 
+                    console.log(response);
+
                     this.sound.play();
                     resolve(response);
                   } else {
