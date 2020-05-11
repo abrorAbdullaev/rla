@@ -97,8 +97,6 @@ export class App {
   }
 
   startSearch() {
-    console.log('Starting search');
-
     const searchedTabs = this.getSearchedTabs();
     const searchItems: Array<{ tabId: number, filters: TabFilters }> = [];
 
@@ -112,11 +110,8 @@ export class App {
         });
       });
 
-      console.log('has Searching tabs', searchIds);
-
       this.searchService.search(searchItems)
         .then((response: Array<{ tabId: number, loadCardItem: JQuery<HTMLElement>, autoBook: boolean }>) => {
-          console.log('response from search', response);
 
           if(response.length) {
             response.forEach(({ tabId, loadCardItem, autoBook }) => {
@@ -149,10 +144,7 @@ export class App {
             });
           }
 
-          console.log(response);
-
           setTimeout(() => {
-            console.log('start search');
             this.startSearch();
           }, 200);
       });
