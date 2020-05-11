@@ -25,6 +25,11 @@ export class SearchService {
           tabsContents.forEach(({ tabId, content }) => {
             let tabHtmlContent: JQuery<HTMLElement> = $(content);
             let toursList = tabHtmlContent.find('.tour-listing--loadboard:first .tour-listing__card');
+
+            // Not found
+            if (tabHtmlContent.find('.no-tours-found').length) {
+              toursList = $([]);
+            }
         
             if (toursList.length) {
               const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
@@ -46,15 +51,16 @@ export class SearchService {
                       loadCardItem: toursList.first(),
                       autoBook: !!currentSearchedTabFilters && !!currentSearchedTabFilters.autoBook,
                     });
-                  } else if (this.canRefresh(tabHtmlContent)) {
-                    this.executeRefresh(tabId);
-                  }
 
-                  if (response.length) {
                     this.sound.play();
-                  }  
+                    resolve(response);
+                  } else {
+                    if (this.canRefresh(tabHtmlContent)) {
+                      this.executeRefresh(tabId);
+                    }
 
-                  resolve(response);
+                    resolve(response);
+                  }
                 });
               } else {
                 // Origin Filter is not set
@@ -64,16 +70,23 @@ export class SearchService {
                     loadCardItem: toursList.first(),
                     autoBook: !!currentSearchedTabFilters && !!currentSearchedTabFilters.autoBook,
                   });
-                } else if (this.canRefresh(tabHtmlContent)) {
-                  this.executeRefresh(tabId);
-                }
 
-                if (response.length) {
                   this.sound.play();
-                }
+                  resolve(response);
+                } else {
+                  if (this.canRefresh(tabHtmlContent)) {
+                    this.executeRefresh(tabId);
+                  }
 
-                resolve(response);
+                  resolve(response);
+                }
               }
+            } else {
+              if(this.canRefresh(tabHtmlContent)) {
+                this.executeRefresh(tabId);
+              }
+
+              resolve(response);
             }
           });
         });
