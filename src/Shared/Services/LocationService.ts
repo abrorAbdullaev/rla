@@ -77,7 +77,7 @@ export class LocationService {
     
     var radlat1 = Math.PI * locationLatLong1.latLong.lat/180;
     var radlat2 = Math.PI * locationLatLong2.latLong.lat/180;
-    var theta = locationLatLong1.latLong.lat - locationLatLong2.latLong.lat;
+    var theta = locationLatLong1.latLong.long - locationLatLong2.latLong.long;
     var radtheta = Math.PI * theta/180;
     var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
     if (dist > 1) {

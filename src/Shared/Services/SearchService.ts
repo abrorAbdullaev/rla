@@ -196,7 +196,7 @@ export class SearchService {
               if (!!filterCityLocation || !!tourCityLocation) {
                 const distance = this.locationService.calculateDistance(filterCityLocation, tourCityLocation);
 
-                if ((!!matchedOriginState.radius && distance < matchedOriginState.radius) || distance > 100) {
+                if ((!!matchedOriginState.radius && distance < matchedOriginState.radius && distance > 0) || distance > 100) {
                   response.push(toursList[currentItemIndex]); 
                 }
               }
