@@ -201,7 +201,6 @@ export class SearchService {
           .find('.tour-header__work-opportunity-stop-row .run-stop:first')
           .text());
         }
-        
 
         const tourOriginInfo: string = $(toursList[currentItemIndex])
         .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
