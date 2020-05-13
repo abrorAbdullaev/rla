@@ -15,7 +15,8 @@ export interface TabFilters {
   originStatesFilter: Array<TabOriginStateInfo>,
   destinationStatesFilter: Array<string>,
   autoBook: boolean,
-  stopsCount: number
+  stopsCount: number,
+  withLogs: boolean,
 }
 
 export interface PrintInfo {
@@ -42,9 +43,10 @@ export const defaultTabInfo: Omit<TabInfo, 'id'> = {
     destinationStatesFilter: [],
     autoBook: false,
     stopsCount: 4,
+    withLogs: false,
   } as TabFilters,
   printInfo: {
     loadId: '',
     loadLength: 0,
-  }
+  },
 }

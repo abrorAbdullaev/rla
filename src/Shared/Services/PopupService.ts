@@ -149,6 +149,19 @@ export class PopupService {
       },
       {
         condition: true,
+        elementSelector: '.with-logs',
+        event: 'click',
+        action: (tabId: number) => {
+          const filters: TabFilters = {
+            ...bg.observedTabs[bg.getIndexByTabId(tabId)].filters,
+          }
+
+          filters.withLogs = !filters.withLogs;
+          bg.updateFilters(tabId, filters);
+        },
+      },
+      {
+        condition: true,
         elementSelector: '.auto-book-checkbox',
         event: 'click',
         action: (tabId: number) => {

@@ -81,6 +81,10 @@
                 </div>
                 <hr />
                 <div class="form-group">
+                  <button type="button" data-tab-id={{ id }} class="btn with-logs {{#filters.withLogs}}btn-primary{{/filters.withLogs}}{{^filters.withLogs}}btn-outline-primary{{/filters.withLogs}}">With Logs</button>
+                </div>
+                <hr />
+                <div class="form-group">
                   <label>
                     Origin states&nbsp;
                         {{^filters.originStatesFilter.length}}<span class="mark mark-warning"></span> (Not given){{/filters.originStatesFilter.length}}

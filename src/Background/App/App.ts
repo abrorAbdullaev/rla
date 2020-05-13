@@ -101,6 +101,7 @@ export class App {
     const searchItems: Array<{ tabId: number, filters: TabFilters }> = [];
 
     if (searchedTabs.length) {
+      console.clear();
       const searchIds = searchedTabs.map((obj: TabInfo) => obj.id);
       
       searchIds.forEach((searchId: number) => {
@@ -115,6 +116,12 @@ export class App {
 
           if(response.length) {
             response.forEach(({ tabId, loadCardItem, autoBook }) => {
+              const searchItem = searchItems.find((searchItem) => searchItem.tabId === tabId);
+              
+              if (searchItem?.filters.withLogs) {
+                console.log('Results found: ', response, ' With filters: ', searchItem.filters);
+              }
+
               this.stopTabSearching(tabId, true);
 
               // Auto book
