@@ -270,11 +270,14 @@ export class SearchService {
                   console.log('distance: ', distance);
                 }
 
+                // I know with this code your eyes are dropping with blood, sorry (
                 if (!!matchedOriginState.radius) {
                   if (distance < matchedOriginState.radius && distance >= 0) {
                     console.log('load has passed all filters');
                     console.log('radius: ', matchedOriginState.radius, ' distance: ', distance);
                     response.push(toursList[currentItemIndex]);
+                  } else if (withLogs) {
+                    console.log('Radius was set and distance didn`t pass the filter');
                   }
                 } else if (distance < 100 && distance >= 0) {
                   response.push(toursList[currentItemIndex]);
