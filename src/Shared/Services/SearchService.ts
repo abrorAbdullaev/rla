@@ -270,10 +270,16 @@ export class SearchService {
                   console.log('distance: ', distance);
                 }
 
-                if ((!!matchedOriginState.radius && distance < matchedOriginState.radius && distance >= 0) || (distance < 100 && distance >= 0)) {
-                  console.log('load has passed all filters');
-                  console.log('radius: ', matchedOriginState.radius, ' distance: ', distance);
-                  response.push(toursList[currentItemIndex]); 
+                if (!!matchedOriginState.radius) {
+                  if (distance < matchedOriginState.radius && distance >= 0) {
+                    console.log('load has passed all filters');
+                    console.log('radius: ', matchedOriginState.radius, ' distance: ', distance);
+                    response.push(toursList[currentItemIndex]);
+                  }
+                } else if (distance < 100 && distance >= 0) {
+                  response.push(toursList[currentItemIndex]);
+                } else if (withLogs) {
+                  console.log('Radius was set and distance didn`t pass the filter');
                 }
               }
 
