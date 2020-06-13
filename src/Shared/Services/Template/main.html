@@ -124,6 +124,14 @@
                               {{^time}}<span class="mark mark-warning"></span>{{/time}}
                               {{#time}}<span class="mark mark-success"></span>{{/time}}
                             </small>
+                            <input class="mt-1 form-control" disabled="disabled" data-tab-id="{{ id }}" name="origin-destination-states" value="{{#destinationStates}} {{.}} {{/destinationStates}}" type="text" placeholder="destination states" />
+                            <small class="form-text text-muted">
+                              Destination for the current origin&nbsp;
+                              {{^destinationStates.length}}<span class="mark mark-warning"></span>{{/destinationStates.length}}
+                              {{#destinationStates.length}}<span class="mark mark-success"></span>{{/destinationStates.length}}
+                            </small>
+                            <button data-tab-id="{{ id }}" data-state-name="{{ stateName }}" type="button" class="btn btn-primary origin-destination-states-btn">add</button>
+                            <button data-tab-id="{{ id }}" data-state-name="{{ stateName }}" type="button" class="btn btn-secondary origin-destination-states-clear-btn">clean</button>
                           </div>
                         </div>
                       {{/filters.originStatesFilter}}
@@ -133,7 +141,7 @@
                   </div>
                 </div>
                 <hr />
-                <div class="form-group">
+                <!-- <div class="form-group">
                   <label>
                     Destination states&nbsp;
                         {{^filters.destinationStatesFilter.length}}<span class="mark mark-warning"></span> (Not given){{/filters.destinationStatesFilter.length}}
@@ -152,7 +160,7 @@
                     </div>
                   </div>
                 </div>
-                <hr />
+                <hr /> -->
                 <div class="form-group">
                   <div class="card">
                     <div class="card-body">

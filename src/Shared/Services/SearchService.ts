@@ -34,22 +34,6 @@ export class SearchService {
             if (toursList.length) {
               const currentSearchedTabFilters = searchItems.find((searchItem) => searchItem.tabId == tabId)?.filters;
 
-              if (currentSearchedTabFilters?.withLogs) {
-                console.clear();
-              }
-
-              if (currentSearchedTabFilters?.withLogs && currentSearchedTabFilters?.destinationStatesFilter.length) {
-                console.log('Starting destination filter with items: ', toursList);
-              }
-              
-              if (currentSearchedTabFilters?.destinationStatesFilter.length) {
-                toursList = this.applyDestinationStatesFilter(toursList, currentSearchedTabFilters.destinationStatesFilter);
-              }
-
-              if (currentSearchedTabFilters?.withLogs && currentSearchedTabFilters?.destinationStatesFilter.length) {
-                console.log('Finished destination filter with items: ', toursList);
-              }
-
               if (currentSearchedTabFilters?.withLogs && currentSearchedTabFilters?.stopsCount > 0) {
                 console.log('Starting stops count filter with items: ', toursList);
               }
@@ -203,8 +187,8 @@ export class SearchService {
         }
 
         const tourOriginInfo: string = $(toursList[currentItemIndex])
-        .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
-        .text();
+          .find('.tour-header__work-opportunity-stop-row .run-stop:first .city')
+          .text();
 
         if (withLogs) {
           console.log('tour origin info: ', tourOriginInfo);
@@ -220,6 +204,7 @@ export class SearchService {
 
         if (!!matchedOriginState) {
           let timeMatch = true;
+          let destinationMatch = true;
 
           if (!!matchedOriginState.time) {          
             const tourStartDate = $(toursList[currentItemIndex])
@@ -249,7 +234,24 @@ export class SearchService {
             console.log('Time check passed with result: ', timeMatch);
           }
 
-          if (!!matchedOriginState.city && timeMatch) {
+          if (!!matchedOriginState.destinationStates && timeMatch) {
+            if (withLogs) {
+              console.log('Starting destination filter', matchedOriginState.destinationStates.join(', '));
+            }
+
+            const tourDestinationInfo: string = $(toursList[currentItemIndex])
+              .find('.tour-header__work-opportunity-stop-row .run-stop:last .city')
+              .text();
+
+            const destinationState = states.find((state) => {
+              const matchPattern = new RegExp('\\s' + state.name.toLowerCase() + '\\s|\\s' + state.abbreviation.toLowerCase() + '\\s');
+              return tourDestinationInfo.toLowerCase().match(matchPattern);
+            });
+            
+            destinationMatch = !!(destinationState && matchedOriginState.destinationStates.includes(destinationState.abbreviation));
+          }
+
+          if (!!matchedOriginState.city && timeMatch && destinationMatch) {
             if (withLogs) {
               console.log('Starting city (distance) filter', matchedOriginState.city);
             }
@@ -287,7 +289,6 @@ export class SearchService {
               }
 
               currentItemIndex++;
-              iterate();
             });
           } else {
             if (timeMatch) {
@@ -295,17 +296,16 @@ export class SearchService {
             }
             
             currentItemIndex++;
-            iterate();
           }
         } else {
           console.log('skipping the load as the origin state didn\'t match');
           currentItemIndex++;
-          iterate();
         }
+
+        iterate();
       }
 
       iterate();
-      return;
     });
   }
 
